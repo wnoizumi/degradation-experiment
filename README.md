@@ -1,9 +1,9 @@
-# Opus Maintainability Experiment
+# Opus Structural Degradation Experiment
 
 Software system designed for running an experiment about code smells and maintainability problems.
 
 
-##Smell Patterns to Implement
+# Smell Patterns to Implement
 
 Concern Overload - Complex Class, Divergent Change, Feature Envy, God Class, Intensive Coupling, Long Method, and Shotgun Surgery
 

@@ -1,6 +1,9 @@
 package br.pucrio.opus.smells.ui.controllers;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +22,7 @@ import br.pucrio.opus.smells.resources.SourceFilesLoader;
 import br.pucrio.opus.smells.resources.Type;
 
 public class ExperimentController {
-	
+
 	private List<Type> allTypes = new ArrayList<>();
 	private SmellyGraph graph = new SmellyGraph();
 	SmellPatternsFinder patternsFinder = new SmellPatternsFinder();
@@ -29,8 +32,8 @@ public class ExperimentController {
 		collectTypeMetrics();
 		detectSmells();
 		buildGraph();
-		collectNumberOfChanges();
-		collectDeveloperAffinity();
+		collectNumberOfChanges(sourcePath);
+		collectDeveloperAffinity(sourcePath);
 		findSmellPatterns();
 	}
 
@@ -38,12 +41,33 @@ public class ExperimentController {
 		patternsFinder.findPatterns(allTypes, graph);
 	}
 
-	private void collectDeveloperAffinity() {
+	private void collectDeveloperAffinity(String sourcePath) throws IOException {
+		Process process = Runtime.getRuntime().exec("git config user.name", null,
+				new File(sourcePath));
+		String authorName = getResults(process).get(0);
 		
+		String logCommand = String.format("git log --author=\"%s\" --all --name-only --pretty=\"format:\" *.java", authorName);
+		
+		process = Runtime.getRuntime().exec(logCommand, null,
+				new File(sourcePath));
+		
+		List<String> changedFiles = getResults(process);
 	}
 
-	private void collectNumberOfChanges() {
-		
+	private void collectNumberOfChanges(String sourcePath) throws IOException {
+		Process process = Runtime.getRuntime().exec("git log --all --name-only --pretty=\"format:\" *.java", null,
+				new File(sourcePath));
+		List<String> changedFiles = getResults(process);
+	}
+
+	private List<String> getResults(Process process) throws IOException {
+		List<String> resultingLines = new ArrayList<>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		String line = "";
+		while ((line = reader.readLine()) != null) {
+			resultingLines.add(line);
+		}
+		return resultingLines;
 	}
 
 	private void buildGraph() {
@@ -51,10 +75,11 @@ public class ExperimentController {
 		builder.addTypeAndItsMethods(allTypes);
 		graph = builder.build();
 	}
-	
+
 	private void collectMethodMetrics(Type type) {
-		for (Method method: type.getMethods()) {
-			MethodMetricValueCollector methodCollector = new MethodMetricValueCollector(type.getNodeAsTypeDeclaration());
+		for (Method method : type.getMethods()) {
+			MethodMetricValueCollector methodCollector = new MethodMetricValueCollector(
+					type.getNodeAsTypeDeclaration());
 			methodCollector.collect(method);
 		}
 	}
@@ -69,8 +94,9 @@ public class ExperimentController {
 
 	private void detectSmells() {
 		for (Type type : allTypes) {
-			// It is important for some detectors that method-level smells are collected first
-			for (Method method: type.getMethods()) {
+			// It is important for some detectors that method-level smells are collected
+			// first
+			for (Method method : type.getMethods()) {
 				MethodLevelSmellDetector methodSmellDetector = new MethodLevelSmellDetector();
 				List<Smell> smells = methodSmellDetector.detect(method);
 				method.addAllSmells(smells);

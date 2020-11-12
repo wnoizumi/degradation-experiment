@@ -19,10 +19,10 @@ public class SmellPatternsFinder {
 	
 	
 	public void findPatterns(List<Type> allTypes, SmellyGraph graph) {
-		detectUnwantedDependency(allTypes, graph);
+		detectUnwantedDependency(allTypes);
 	}
 
-	private void detectUnwantedDependency(List<Type> allTypes, SmellyGraph graph) {
+	private void detectUnwantedDependency(List<Type> allTypes) {
 		for (Type type : allTypes) {
 			HashSet<SmellName> smellsFound = new HashSet<>();
 			for (Smell smell : type.getSmells()) {
