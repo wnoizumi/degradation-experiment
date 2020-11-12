@@ -1,5 +1,5 @@
 
-# Created by https://www.gitignore.io/api/java,maven,eclipse
+exported/
 
 ### Java ###
 *.class

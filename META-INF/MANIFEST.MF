@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Organic Command Line Interface
-Bundle-SymbolicName: organic;singleton:=true
+Bundle-Name: Opus Software Degradation Experiment
+Bundle-SymbolicName: degradation.experiment;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: br.pucrio.opus.smells.Activator
 Bundle-Vendor: PUC-Rio
