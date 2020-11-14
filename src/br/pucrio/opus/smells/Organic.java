@@ -13,17 +13,6 @@ public class Organic implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					Main window = new Main();
-//					window.getFrmSoftwareMaintainabilityExperiment().setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//		
 		System.out.println("OPUS Research Group");
 		System.out.println("Source Code Degradation Experiment");
 		System.out.println("Please provide the path to the source code folder (without test folder):");

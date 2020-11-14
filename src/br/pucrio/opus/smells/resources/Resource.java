@@ -1,5 +1,6 @@
 package br.pucrio.opus.smells.resources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -113,4 +114,7 @@ public abstract class Resource extends Observable {
 		return false;
 	}
 	
+	public String getAbsoluteFilePath() {
+		return sourceFile.getFile().getAbsolutePath();
+	}
 }

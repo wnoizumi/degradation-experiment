@@ -5,13 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.pucrio.opus.smells.agglomeration.SmellyGraph;
 import br.pucrio.opus.smells.agglomeration.SmellyGraphBuilder;
 import br.pucrio.opus.smells.collector.ClassLevelSmellDetector;
 import br.pucrio.opus.smells.collector.MethodLevelSmellDetector;
 import br.pucrio.opus.smells.collector.Smell;
+import br.pucrio.opus.smells.filechanges.FileChangesManager;
+import br.pucrio.opus.smells.filechanges.TypeChangesHolder;
 import br.pucrio.opus.smells.metrics.MethodMetricValueCollector;
 import br.pucrio.opus.smells.metrics.TypeMetricValueCollector;
 import br.pucrio.opus.smells.patterns.SmellPatternsFinder;
@@ -26,7 +30,9 @@ public class ExperimentController {
 	private List<Type> allTypes = new ArrayList<>();
 	private SmellyGraph graph = new SmellyGraph();
 	SmellPatternsFinder patternsFinder = new SmellPatternsFinder();
-
+	FileChangesManager allFileChanges = null;
+	FileChangesManager authorFileChanges = null;
+	
 	public void startExperiment(String sourcePath) throws IOException {
 		loadAllTypes(sourcePath);
 		collectTypeMetrics();
@@ -35,6 +41,10 @@ public class ExperimentController {
 		collectNumberOfChanges(sourcePath);
 		collectDeveloperAffinity(sourcePath);
 		findSmellPatterns();
+		
+		for (TypeChangesHolder typeChanges : allFileChanges.getSortedListOfFileChanges()) {
+			System.out.println(typeChanges.getType().getAbsoluteFilePath() + ": " + typeChanges.getNumberOfChanges());
+		}
 	}
 
 	private void findSmellPatterns() {
@@ -42,22 +52,34 @@ public class ExperimentController {
 	}
 
 	private void collectDeveloperAffinity(String sourcePath) throws IOException {
+		authorFileChanges = new FileChangesManager(allTypes);
 		Process process = Runtime.getRuntime().exec("git config user.name", null,
 				new File(sourcePath));
 		String authorName = getResults(process).get(0);
 		
-		String logCommand = String.format("git log --author=\"%s\" --all --name-only --pretty=\"format:\" *.java", authorName);
-		
-		process = Runtime.getRuntime().exec(logCommand, null,
-				new File(sourcePath));
+		ProcessBuilder builder = new ProcessBuilder("git", "log", "--author="+authorName, "--all", "--name-only", "--pretty=\"format:\"", "*.java");
+		builder.directory(new File(sourcePath));
+		builder.redirectErrorStream(true);
+		process = builder.start();
 		
 		List<String> changedFiles = getResults(process);
+		for (String filePath : changedFiles) {
+			authorFileChanges.incrementChangesOf(filePath);
+		}
 	}
 
 	private void collectNumberOfChanges(String sourcePath) throws IOException {
-		Process process = Runtime.getRuntime().exec("git log --all --name-only --pretty=\"format:\" *.java", null,
-				new File(sourcePath));
+		allFileChanges = new FileChangesManager(allTypes);
+		
+		ProcessBuilder builder = new ProcessBuilder("git", "log", "--all", "--name-only", "--pretty=\"format:\"", "*.java");
+		builder.directory(new File(sourcePath));
+		builder.redirectErrorStream(true);
+		Process process = builder.start();
+		
 		List<String> changedFiles = getResults(process);
+		for (String filePath : changedFiles) {
+			allFileChanges.incrementChangesOf(filePath);
+		}
 	}
 
 	private List<String> getResults(Process process) throws IOException {
