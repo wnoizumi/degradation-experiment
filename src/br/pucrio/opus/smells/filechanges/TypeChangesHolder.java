@@ -11,7 +11,7 @@ public class TypeChangesHolder implements Comparable<TypeChangesHolder> {
 	public TypeChangesHolder(Type type) {
 		this.type = type;
 		this.numberOfChanges = 0;
-		//Necessario para comparar com os dados retornados pelo git
+		//Necessario para comparar com os caminhos retornados pelo git
 		this.filePath = type.getAbsoluteFilePath().replaceAll("\\\\", "/");
 	}
 

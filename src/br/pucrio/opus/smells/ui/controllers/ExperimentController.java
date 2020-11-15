@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import br.pucrio.opus.smells.agglomeration.SmellyGraph;
 import br.pucrio.opus.smells.agglomeration.SmellyGraphBuilder;
@@ -15,7 +13,6 @@ import br.pucrio.opus.smells.collector.ClassLevelSmellDetector;
 import br.pucrio.opus.smells.collector.MethodLevelSmellDetector;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.filechanges.FileChangesManager;
-import br.pucrio.opus.smells.filechanges.TypeChangesHolder;
 import br.pucrio.opus.smells.metrics.MethodMetricValueCollector;
 import br.pucrio.opus.smells.metrics.TypeMetricValueCollector;
 import br.pucrio.opus.smells.patterns.SmellPatternsFinder;
@@ -42,9 +39,7 @@ public class ExperimentController {
 		collectDeveloperAffinity(sourcePath);
 		findSmellPatterns();
 		
-		for (TypeChangesHolder typeChanges : allFileChanges.getSortedListOfFileChanges()) {
-			System.out.println(typeChanges.getType().getAbsoluteFilePath() + ": " + typeChanges.getNumberOfChanges());
-		}
+		
 	}
 
 	private void findSmellPatterns() {
@@ -53,12 +48,13 @@ public class ExperimentController {
 
 	private void collectDeveloperAffinity(String sourcePath) throws IOException {
 		authorFileChanges = new FileChangesManager(allTypes);
+		File directory = new File(sourcePath);
 		Process process = Runtime.getRuntime().exec("git config user.name", null,
-				new File(sourcePath));
+				directory);
 		String authorName = getResults(process).get(0);
 		
 		ProcessBuilder builder = new ProcessBuilder("git", "log", "--author="+authorName, "--all", "--name-only", "--pretty=\"format:\"", "*.java");
-		builder.directory(new File(sourcePath));
+		builder.directory(directory);
 		builder.redirectErrorStream(true);
 		process = builder.start();
 		

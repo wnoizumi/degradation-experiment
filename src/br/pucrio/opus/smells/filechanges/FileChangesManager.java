@@ -19,6 +19,7 @@ public class FileChangesManager {
 	}
 
 	public void incrementChangesOf(String filePath) {
+		//TODO: make this implementation more efficient
 		for (TypeChangesHolder t : changes) {
 			if (t.getFilePath().contains(filePath)) {
 				t.incrementNumberOfChanges();

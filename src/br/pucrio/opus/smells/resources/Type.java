@@ -144,5 +144,8 @@ public class Type extends Resource {
 	public String toString() {
 		return "Type [fqn=" + getFullyQualifiedName() + "]";
 	}
-	
+
+	public boolean isInterface() {
+		return this.getKind().contains("interface");
+	}
 }
