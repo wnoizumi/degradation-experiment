@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import br.pucrio.opus.smells.agglomeration.SmellyEdge;
 import br.pucrio.opus.smells.agglomeration.SmellyGraph;
+import br.pucrio.opus.smells.agglomeration.SmellyNode;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.collector.SmellName;
 import br.pucrio.opus.smells.patterns.model.PatternModel;
@@ -12,14 +14,15 @@ import br.pucrio.opus.smells.patterns.model.SmellsOfPatterns;
 import br.pucrio.opus.smells.resources.Type;
 
 public class SmellPatternsFinder {
-	
+
 	private List<PatternModel> multipleSmellsPatterns = new ArrayList<PatternModel>();
-	private List<PatternModel> singleSmellsPatterns = new ArrayList<PatternModel>();
-	
-	
+	private List<PatternModel> singleSmellPatterns = new ArrayList<PatternModel>();
+
 	public void findPatterns(List<Type> allTypes, SmellyGraph graph) {
 		detectMultipleSmellsPatterns(allTypes, graph);
 		detectSingleSmellPatterns(allTypes);
+		System.out.println("Multiple smells patterns:" + multipleSmellsPatterns.size());
+		System.out.println("Single smell patterns:" + singleSmellPatterns.size());
 	}
 
 	private void detectSingleSmellPatterns(List<Type> allTypes) {
@@ -31,7 +34,7 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.UNUSED_ABSTRACTION.contains(smell.getName())) {
-					singleSmellsPatterns.add(new PatternModel(type));
+					singleSmellPatterns.add(new PatternModel(type));
 					break;
 				}
 			}
@@ -42,7 +45,7 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.INCOMPLETE_ABSTRACTION.contains(smell.getName())) {
-					singleSmellsPatterns.add(new PatternModel(type));
+					singleSmellPatterns.add(new PatternModel(type));
 					break;
 				}
 			}
@@ -50,24 +53,48 @@ public class SmellPatternsFinder {
 	}
 
 	private void detectMultipleSmellsPatterns(List<Type> allTypes, SmellyGraph graph) {
-		detectFatInterface(allTypes);
+		detectFatInterface(allTypes, graph);
 		detectConcernOverload(allTypes);
 		detectScatteredConcern(allTypes);
 		detectUnwantedDependency(allTypes);
 	}
 
-	private void detectFatInterface(List<Type> allTypes) {
+	private void detectFatInterface(List<Type> allTypes, SmellyGraph graph) {
 		for (Type type : allTypes) {
-			for (Smell smell : type.getSmells()) {
-				if (type.isInterface()) {
+			if (type.isInterface()) {
+				boolean foundFatInterface = false;
+				for (Smell smell : type.getSmells()) {
 					if (smell.getName().equals(SmellName.ShotgunSurgery)) {
 						multipleSmellsPatterns.add(new PatternModel(type));
+						foundFatInterface = true;
 					}
-				} else {
-					//TODO check clients and implementations
 				}
+				
+				if (!foundFatInterface) {
+					List<Smell> fatInterfaceSmells = new ArrayList<>();
+					SmellyNode node = getNodeOfType(type, graph);
+					for (SmellyEdge edge : node.getIncomingEdges()) {
+						for (Smell smell : edge.getOrigin().getResource().getSmells()) {
+							if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
+								fatInterfaceSmells.add(smell);
+							}
+						}
+					}
+					if (fatInterfaceSmells.size() > 1) {
+						multipleSmellsPatterns.add(new PatternModel(type));
+					}
+				}
+			} 
+		}
+	}
+
+	private SmellyNode getNodeOfType(Type type, SmellyGraph graph) {
+		for (SmellyNode node : graph.getNodes()) {
+			if (node.getResource().equals(type)) {
+				return node;
 			}
 		}
+		return null;
 	}
 
 	private void detectScatteredConcern(List<Type> allTypes) {
@@ -81,7 +108,7 @@ public class SmellPatternsFinder {
 					complementarySmells.add(smell.getName());
 				}
 			}
-			
+
 			if (mandatorySmells.size() >= 1 && complementarySmells.size() >= 1) {
 				multipleSmellsPatterns.add(new PatternModel(type));
 			}
@@ -96,7 +123,7 @@ public class SmellPatternsFinder {
 					smellsFound.add(smell.getName());
 				}
 			}
-			
+
 			if (smellsFound.size() > 1) {
 				multipleSmellsPatterns.add(new PatternModel(type));
 			}
@@ -111,7 +138,7 @@ public class SmellPatternsFinder {
 					smellsFound.add(smell.getName());
 				}
 			}
-			
+
 			if (smellsFound.size() > 1) {
 				multipleSmellsPatterns.add(new PatternModel(type));
 			}
