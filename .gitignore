@@ -1,5 +1,9 @@
-
-exported/
+.gradle
+.idea
+build
+*.lock
+out
+*.properties
 
 ### Java ###
 *.class

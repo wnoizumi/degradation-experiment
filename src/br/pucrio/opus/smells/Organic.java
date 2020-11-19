@@ -1,18 +1,26 @@
 package br.pucrio.opus.smells;
 
+import java.io.IOException;
 import java.util.Scanner;
-
-import org.eclipse.equinox.app.IApplication;
-import org.eclipse.equinox.app.IApplicationContext;
 
 import br.pucrio.opus.smells.ui.controllers.ExperimentController;
 
-public class Organic implements IApplication {
+public class Organic {
 
 	ExperimentController controller = new ExperimentController();
 
-	@Override
-	public Object start(IApplicationContext context) throws Exception {
+	private static Organic instance = null;
+	
+	private Organic(){}
+
+	public static Organic getInstance(){
+		if (instance == null){
+			instance = new Organic();
+		}
+		return instance;
+	}
+	
+	public void start() throws IOException {
 		System.out.println("OPUS Research Group");
 		System.out.println("Source Code Degradation Experiment");
 		System.out.println("Please provide the path to the source code folder (without test folder):");
@@ -22,12 +30,10 @@ public class Organic implements IApplication {
 		controller.startExperiment(sourcePath);
 		
 		scanner.close();
-		return EXIT_OK;
 	}
 
-	@Override
-	public void stop() {
-
+	public static void main(String[] args) throws IOException {
+		Organic instance = Organic.getInstance();
+		instance.start();
 	}
-
 }
