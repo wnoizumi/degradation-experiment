@@ -9,20 +9,28 @@ import br.pucrio.opus.smells.agglomeration.SmellyGraph;
 import br.pucrio.opus.smells.agglomeration.SmellyNode;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.collector.SmellName;
+import br.pucrio.opus.smells.patterns.model.PatternKind;
 import br.pucrio.opus.smells.patterns.model.PatternModel;
 import br.pucrio.opus.smells.patterns.model.SmellsOfPatterns;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.Type;
 
 public class SmellPatternsFinder {
 
 	private List<PatternModel> multipleSmellsPatterns = new ArrayList<PatternModel>();
 	private List<PatternModel> singleSmellPatterns = new ArrayList<PatternModel>();
+	
+	public List<PatternModel> getMultipleSmellsPatterns() {
+		return this.multipleSmellsPatterns;
+	}
+	
+	public List<PatternModel> getSingleSmellPatterns() {
+		return this.singleSmellPatterns;
+	}
 
 	public void findPatterns(List<Type> allTypes, SmellyGraph graph) {
 		detectMultipleSmellsPatterns(allTypes, graph);
 		detectSingleSmellPatterns(allTypes);
-		System.out.println("Multiple smells patterns:" + multipleSmellsPatterns.size());
-		System.out.println("Single smell patterns:" + singleSmellPatterns.size());
 	}
 
 	private void detectSingleSmellPatterns(List<Type> allTypes) {
@@ -32,9 +40,9 @@ public class SmellPatternsFinder {
 
 	private void detectUnusedAbstraction(List<Type> allTypes) {
 		for (Type type : allTypes) {
-			for (Smell smell : type.getSmells()) {
+			for (Smell smell : type.getAllSmells()) {
 				if (SmellsOfPatterns.UNUSED_ABSTRACTION.contains(smell.getName())) {
-					singleSmellPatterns.add(new PatternModel(type));
+					singleSmellPatterns.add(new PatternModel(type, PatternKind.UNUSED_ABSTRACTION));
 					break;
 				}
 			}
@@ -43,9 +51,9 @@ public class SmellPatternsFinder {
 
 	private void detecIncompleteAbstraction(List<Type> allTypes) {
 		for (Type type : allTypes) {
-			for (Smell smell : type.getSmells()) {
+			for (Smell smell : type.getAllSmells()) {
 				if (SmellsOfPatterns.INCOMPLETE_ABSTRACTION.contains(smell.getName())) {
-					singleSmellPatterns.add(new PatternModel(type));
+					singleSmellPatterns.add(new PatternModel(type, PatternKind.INCOMPLETE_ABSTRACTION));
 					break;
 				}
 			}
@@ -63,25 +71,33 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			if (type.isInterface()) {
 				boolean foundFatInterface = false;
-				for (Smell smell : type.getSmells()) {
+				for (Smell smell : type.getAllSmells()) {
 					if (smell.getName().equals(SmellName.ShotgunSurgery)) {
-						multipleSmellsPatterns.add(new PatternModel(type));
+						multipleSmellsPatterns.add(new PatternModel(type, PatternKind.FAT_INTERFACE));
 						foundFatInterface = true;
 					}
 				}
 				
 				if (!foundFatInterface) {
-					List<Smell> fatInterfaceSmells = new ArrayList<>();
+					HashSet<Smell> fatInterfaceSmells = new HashSet<>();
 					SmellyNode node = getNodeOfType(type, graph);
 					for (SmellyEdge edge : node.getIncomingEdges()) {
-						for (Smell smell : edge.getOrigin().getResource().getSmells()) {
+						List<Smell> smellsToCheck = null;
+						Resource resource = edge.getOrigin().getResource();
+						if (resource instanceof Type) {
+							smellsToCheck = ((Type)resource).getAllSmells();
+						} else {
+							smellsToCheck = resource.getSmells();
+						}
+						
+						for (Smell smell : smellsToCheck) {
 							if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
 								fatInterfaceSmells.add(smell);
 							}
 						}
 					}
 					if (fatInterfaceSmells.size() > 1) {
-						multipleSmellsPatterns.add(new PatternModel(type));
+						multipleSmellsPatterns.add(new PatternModel(type, PatternKind.FAT_INTERFACE));
 					}
 				}
 			} 
@@ -101,7 +117,7 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			HashSet<SmellName> mandatorySmells = new HashSet<>();
 			HashSet<SmellName> complementarySmells = new HashSet<>();
-			for (Smell smell : type.getSmells()) {
+			for (Smell smell : type.getAllSmells()) {
 				if (SmellsOfPatterns.SCATTERED_CONCERN_MANDATORY.contains(smell.getName())) {
 					mandatorySmells.add(smell.getName());
 				} else if (SmellsOfPatterns.SCATTERED_CONCERN_COMPLEMENT.contains(smell.getName())) {
@@ -110,7 +126,7 @@ public class SmellPatternsFinder {
 			}
 
 			if (mandatorySmells.size() >= 1 && complementarySmells.size() >= 1) {
-				multipleSmellsPatterns.add(new PatternModel(type));
+				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.SCATTERED_CONCERN));
 			}
 		}
 	}
@@ -118,14 +134,14 @@ public class SmellPatternsFinder {
 	private void detectConcernOverload(List<Type> allTypes) {
 		for (Type type : allTypes) {
 			HashSet<SmellName> smellsFound = new HashSet<>();
-			for (Smell smell : type.getSmells()) {
+			for (Smell smell : type.getAllSmells()) {
 				if (SmellsOfPatterns.CONCERN_OVERLOAD.contains(smell.getName())) {
 					smellsFound.add(smell.getName());
 				}
 			}
 
 			if (smellsFound.size() > 1) {
-				multipleSmellsPatterns.add(new PatternModel(type));
+				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.CONCERN_OVERLOAD));
 			}
 		}
 	}
@@ -133,14 +149,14 @@ public class SmellPatternsFinder {
 	private void detectUnwantedDependency(List<Type> allTypes) {
 		for (Type type : allTypes) {
 			HashSet<SmellName> smellsFound = new HashSet<>();
-			for (Smell smell : type.getSmells()) {
+			for (Smell smell : type.getAllSmells()) {
 				if (SmellsOfPatterns.UNWANTED_DEPENDENCY.contains(smell.getName())) {
 					smellsFound.add(smell.getName());
 				}
 			}
 
 			if (smellsFound.size() > 1) {
-				multipleSmellsPatterns.add(new PatternModel(type));
+				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.UNWANTED_DEPENDENCY));
 			}
 		}
 	}

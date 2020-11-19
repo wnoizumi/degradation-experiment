@@ -1,11 +1,16 @@
 package br.pucrio.opus.smells.ui.controllers;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import br.pucrio.opus.smells.agglomeration.SmellyGraph;
 import br.pucrio.opus.smells.agglomeration.SmellyGraphBuilder;
@@ -13,6 +18,7 @@ import br.pucrio.opus.smells.collector.ClassLevelSmellDetector;
 import br.pucrio.opus.smells.collector.MethodLevelSmellDetector;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.filechanges.FileChangesManager;
+import br.pucrio.opus.smells.gson.ObservableExclusionStrategy;
 import br.pucrio.opus.smells.metrics.MethodMetricValueCollector;
 import br.pucrio.opus.smells.metrics.TypeMetricValueCollector;
 import br.pucrio.opus.smells.patterns.SmellPatternsFinder;
@@ -21,6 +27,7 @@ import br.pucrio.opus.smells.resources.Method;
 import br.pucrio.opus.smells.resources.SourceFile;
 import br.pucrio.opus.smells.resources.SourceFilesLoader;
 import br.pucrio.opus.smells.resources.Type;
+import br.pucrio.opus.smells.util.OrganicOptions;
 
 public class ExperimentController {
 
@@ -38,8 +45,8 @@ public class ExperimentController {
 		collectNumberOfChanges(sourcePath);
 		collectDeveloperAffinity(sourcePath);
 		findSmellPatterns();
-		
-		
+		exportToJson(patternsFinder.getMultipleSmellsPatterns(), "multipleSmellsPatterns.json");
+		exportToJson(patternsFinder.getSingleSmellPatterns(), "SingleSmellPatterns.json");
 	}
 
 	private void findSmellPatterns() {
@@ -136,6 +143,22 @@ public class ExperimentController {
 				allTypes.add(type);
 			}
 		}
+	}
+	
+	private <T> void exportToJson(List<T> data, String fileName) throws IOException {
+		String workingDir = System.getProperty("user.dir");
+		File smellsFile = new File(workingDir + File.separator + fileName);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(smellsFile));
+
+		GsonBuilder builder = new GsonBuilder();
+		builder.addSerializationExclusionStrategy(new ObservableExclusionStrategy());
+		builder.disableHtmlEscaping();
+		builder.setPrettyPrinting();
+		builder.serializeNulls();
+
+		Gson gson = builder.create();
+		gson.toJson(data, writer);
+		writer.close();
 	}
 
 }

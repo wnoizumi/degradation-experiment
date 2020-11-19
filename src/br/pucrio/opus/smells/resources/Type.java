@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -12,6 +13,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import br.pucrio.opus.smells.ast.visitors.MethodCollector;
+import br.pucrio.opus.smells.collector.Smell;
 
 public class Type extends Resource {
 
@@ -147,5 +149,17 @@ public class Type extends Resource {
 
 	public boolean isInterface() {
 		return this.getKind().contains("interface");
+	}
+	
+	/**
+	 * Return all the smells in this type and its methods.
+	 * @return
+	 */
+	public List<Smell> getAllSmells() {
+		List<Smell> allSmells = this.getSmells();
+		for (Method m : this.methods) {
+			allSmells.addAll(m.getSmells());
+		}
+		return allSmells;
 	}
 }

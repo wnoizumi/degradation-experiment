@@ -3,15 +3,15 @@
 Software system designed for running an experiment about code smells and maintainability problems.
 
 
-# Smell Patterns to Implement
+# Smell Patterns 
 
-Concern Overload - Complex Class, Divergent Change, Feature Envy, God Class, Intensive Coupling, Long Method, and Shotgun Surgery
+Concern Overload - Complex Class, Feature Envy, God Class, Intensive Coupling, Long Method, and Shotgun Surgery
 
-Fat Interface - (Shotgun Surgery in the interface) or (Divergent Change, Dispersed Coupling, and Feature Envy in elements that are clients or implement the interface)
+Fat Interface - (Shotgun Surgery in the interface) or (Dispersed Coupling, and Feature Envy in elements that are clients or implement the interface)
 
 Incomplete Abstraction - Lazy Class
 
-Scattered Concern - (God Class or Complex Class) + (Dispersed Coupling, Divergent Change, Feature Envy, Intensive Coupling, and Shotgun Surgery)
+Scattered Concern - (God Class or Complex Class) + (Dispersed Coupling, Feature Envy, Intensive Coupling, and Shotgun Surgery)
 
 Unused Abstraction - Speculative Generality
 
