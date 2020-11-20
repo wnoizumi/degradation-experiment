@@ -27,7 +27,7 @@ public class Organic {
 		Scanner scanner = new Scanner(System.in);
 		String sourcePath = scanner.nextLine();
 		
-		controller.startExperiment(sourcePath);
+		controller.collectData(sourcePath);
 		
 		scanner.close();
 	}

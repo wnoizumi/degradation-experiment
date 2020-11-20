@@ -79,7 +79,7 @@ public class SmellPatternsFinder {
 				}
 				
 				if (!foundFatInterface) {
-					HashSet<Smell> fatInterfaceSmells = new HashSet<>();
+					HashSet<SmellName> fatInterfaceSmells = new HashSet<>();
 					SmellyNode node = getNodeOfType(type, graph);
 					for (SmellyEdge edge : node.getIncomingEdges()) {
 						List<Smell> smellsToCheck = null;
@@ -92,12 +92,15 @@ public class SmellPatternsFinder {
 						
 						for (Smell smell : smellsToCheck) {
 							if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
-								fatInterfaceSmells.add(smell);
+								fatInterfaceSmells.add(smell.getName());
 							}
 						}
 					}
 					if (fatInterfaceSmells.size() > 1) {
-						multipleSmellsPatterns.add(new PatternModel(type, PatternKind.FAT_INTERFACE));
+						PatternModel pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
+						float completeness = fatInterfaceSmells.size() / ((float) SmellsOfPatterns.FAT_INTERFACE.size());
+						pattern.setPatternCompleteness(completeness);
+						multipleSmellsPatterns.add(pattern);
 					}
 				}
 			} 
@@ -126,7 +129,10 @@ public class SmellPatternsFinder {
 			}
 
 			if (mandatorySmells.size() >= 1 && complementarySmells.size() >= 1) {
-				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.SCATTERED_CONCERN));
+				PatternModel pattern = new PatternModel(type, PatternKind.SCATTERED_CONCERN);
+				float completeness = complementarySmells.size() / ((float) SmellsOfPatterns.SCATTERED_CONCERN_COMPLEMENT.size());
+				pattern.setPatternCompleteness(completeness);
+				multipleSmellsPatterns.add(pattern);
 			}
 		}
 	}
@@ -141,7 +147,10 @@ public class SmellPatternsFinder {
 			}
 
 			if (smellsFound.size() > 1) {
-				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.CONCERN_OVERLOAD));
+				PatternModel pattern = new PatternModel(type, PatternKind.CONCERN_OVERLOAD);
+				float completeness = smellsFound.size() / ((float) SmellsOfPatterns.CONCERN_OVERLOAD.size());
+				pattern.setPatternCompleteness(completeness);
+				multipleSmellsPatterns.add(pattern);
 			}
 		}
 	}
@@ -156,7 +165,10 @@ public class SmellPatternsFinder {
 			}
 
 			if (smellsFound.size() > 1) {
-				multipleSmellsPatterns.add(new PatternModel(type, PatternKind.UNWANTED_DEPENDENCY));
+				PatternModel pattern = new PatternModel(type, PatternKind.UNWANTED_DEPENDENCY);
+				float completeness = smellsFound.size() / ((float) SmellsOfPatterns.UNWANTED_DEPENDENCY.size());
+				pattern.setPatternCompleteness(completeness);
+				multipleSmellsPatterns.add(pattern);
 			}
 		}
 	}
