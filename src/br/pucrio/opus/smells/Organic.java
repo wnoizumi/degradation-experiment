@@ -20,7 +20,7 @@ public class Organic {
 		return instance;
 	}
 	
-	public void start() throws IOException {
+	public void start() throws IOException, InterruptedException {
 		System.out.println("OPUS Research Group");
 		System.out.println("Source Code Degradation Experiment");
 		System.out.println("Please provide the path to the source code folder (without test folder):");
@@ -32,7 +32,7 @@ public class Organic {
 		scanner.close();
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		Organic instance = Organic.getInstance();
 		instance.start();
 	}
