@@ -9,7 +9,7 @@ import br.pucrio.opus.smells.metrics.MetricName;
 import br.pucrio.opus.smells.resources.Resource;
 
 /**
- * All classes having LOCs lower than the first quartile of the distribution of LOCs for all system’s classes.
+ * All classes having LOCs lower than the first quartile of the distribution of LOCs for all system's classes.
  * @author Diego Cedrim
  */
 public class LazyClass extends SmellDetector {
