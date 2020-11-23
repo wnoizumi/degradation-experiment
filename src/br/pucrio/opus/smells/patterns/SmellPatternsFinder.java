@@ -40,7 +40,7 @@ public class SmellPatternsFinder {
 
 	private void detectUnusedAbstraction(List<Type> allTypes) {
 		for (Type type : allTypes) {
-			for (Smell smell : type.getAllSmells()) {
+			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.UNUSED_ABSTRACTION.contains(smell.getName())) {
 					singleSmellPatterns.add(new PatternModel(type, PatternKind.UNUSED_ABSTRACTION));
 					break;
@@ -51,7 +51,7 @@ public class SmellPatternsFinder {
 
 	private void detecIncompleteAbstraction(List<Type> allTypes) {
 		for (Type type : allTypes) {
-			for (Smell smell : type.getAllSmells()) {
+			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.INCOMPLETE_ABSTRACTION.contains(smell.getName())) {
 					singleSmellPatterns.add(new PatternModel(type, PatternKind.INCOMPLETE_ABSTRACTION));
 					break;
@@ -71,7 +71,7 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			if (type.isInterface()) {
 				boolean foundFatInterface = false;
-				for (Smell smell : type.getAllSmells()) {
+				for (Smell smell : type.getSmells()) {
 					if (smell.getName().equals(SmellName.ShotgunSurgery)) {
 						multipleSmellsPatterns.add(new PatternModel(type, PatternKind.FAT_INTERFACE));
 						foundFatInterface = true;
@@ -85,7 +85,7 @@ public class SmellPatternsFinder {
 						List<Smell> smellsToCheck = null;
 						Resource resource = edge.getOrigin().getResource();
 						if (resource instanceof Type) {
-							smellsToCheck = ((Type)resource).getAllSmells();
+							smellsToCheck = ((Type)resource).getSmells();
 						} else {
 							smellsToCheck = resource.getSmells();
 						}
@@ -120,7 +120,7 @@ public class SmellPatternsFinder {
 		for (Type type : allTypes) {
 			HashSet<SmellName> mandatorySmells = new HashSet<>();
 			HashSet<SmellName> complementarySmells = new HashSet<>();
-			for (Smell smell : type.getAllSmells()) {
+			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.SCATTERED_CONCERN_MANDATORY.contains(smell.getName())) {
 					mandatorySmells.add(smell.getName());
 				} else if (SmellsOfPatterns.SCATTERED_CONCERN_COMPLEMENT.contains(smell.getName())) {
@@ -140,7 +140,7 @@ public class SmellPatternsFinder {
 	private void detectConcernOverload(List<Type> allTypes) {
 		for (Type type : allTypes) {
 			HashSet<SmellName> smellsFound = new HashSet<>();
-			for (Smell smell : type.getAllSmells()) {
+			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.CONCERN_OVERLOAD.contains(smell.getName())) {
 					smellsFound.add(smell.getName());
 				}
@@ -158,7 +158,7 @@ public class SmellPatternsFinder {
 	private void detectUnwantedDependency(List<Type> allTypes) {
 		for (Type type : allTypes) {
 			HashSet<SmellName> smellsFound = new HashSet<>();
-			for (Smell smell : type.getAllSmells()) {
+			for (Smell smell : type.getSmells()) {
 				if (SmellsOfPatterns.UNWANTED_DEPENDENCY.contains(smell.getName())) {
 					smellsFound.add(smell.getName());
 				}

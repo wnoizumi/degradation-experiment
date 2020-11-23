@@ -1,12 +1,13 @@
 package br.pucrio.opus.smells.resources;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -23,7 +24,7 @@ public abstract class Resource extends Observable {
 	
 	private String fullyQualifiedName;
 	
-	private List<Smell> smells;
+	private Set<Smell> smells;
 	
 	private transient ASTNode node;
 	
@@ -33,7 +34,7 @@ public abstract class Resource extends Observable {
 		this.metricsValues = new HashMap<>();
 		this.sourceFile = sourceFile;
 		this.node = node;
-		this.smells = new ArrayList<>();
+		this.smells = new HashSet<>();
 		identifyKind();
 	}
 	
@@ -102,7 +103,7 @@ public abstract class Resource extends Observable {
 	}
 	
 	public List<Smell> getSmells() {
-		return smells;
+		return new ArrayList<Smell>(this.smells);
 	}
 	
 	public boolean hasSmell(SmellName targetSmell) {

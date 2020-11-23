@@ -46,7 +46,7 @@ public class ExperimentController {
 		startExperiment();
 	}
 
-	private void startExperiment() throws InterruptedException {
+	private void startExperiment() throws InterruptedException, IOException {
 		PatternModel patternToShow = null;
 		if (patternsFinder.getMultipleSmellsPatterns().size() > 0) {
 			patternToShow = patternsFinder.getMultipleSmellsPatterns().get(0);
@@ -66,7 +66,6 @@ public class ExperimentController {
 	                    } catch (InterruptedException e) {
 	                        e.printStackTrace();
 	                    }
-	                System.out.println("Started Experiment");
 	            }
 	        }
 	    };

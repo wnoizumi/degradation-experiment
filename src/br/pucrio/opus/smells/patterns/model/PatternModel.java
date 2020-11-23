@@ -30,8 +30,8 @@ public class PatternModel implements Comparable<PatternModel> {
 	public int compareTo(PatternModel o) {
 		int completenessComparison = Float.compare(this.patternCompleteness, o.patternCompleteness);
 		if (completenessComparison == 0) {
-			int thisNumSmells = this.rootType.getAllSmells().size();
-			int oNumSmells = o.rootType.getAllSmells().size();
+			int thisNumSmells = this.rootType.getSmells().size();
+			int oNumSmells = o.rootType.getSmells().size();
 			return Integer.compare(thisNumSmells, oNumSmells);
 		}
 		return completenessComparison;

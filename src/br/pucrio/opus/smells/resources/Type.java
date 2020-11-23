@@ -144,22 +144,10 @@ public class Type extends Resource {
 	
 	@Override
 	public String toString() {
-		return "Type [fqn=" + getFullyQualifiedName() + "]";
+		return getFullyQualifiedName();
 	}
 
 	public boolean isInterface() {
 		return this.getKind().contains("interface");
-	}
-	
-	/**
-	 * Return all the smells in this type and its methods.
-	 * @return
-	 */
-	public List<Smell> getAllSmells() {
-		List<Smell> allSmells = this.getSmells();
-		for (Method m : this.methods) {
-			allSmells.addAll(m.getSmells());
-		}
-		return allSmells;
 	}
 }

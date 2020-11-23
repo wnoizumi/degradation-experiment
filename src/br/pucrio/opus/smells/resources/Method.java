@@ -104,7 +104,6 @@ public class Method extends Resource {
 	
 	@Override
 	public String toString() {
-		return "Method [fqn=" + getFullyQualifiedName() + "]";
+		return getFullyQualifiedName();
 	}
-	
 }

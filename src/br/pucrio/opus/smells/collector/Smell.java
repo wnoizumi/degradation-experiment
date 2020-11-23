@@ -60,4 +60,8 @@ public class Smell {
 		this.endingLine = endingLine;
 	}
 	
+	@Override
+	public String toString() {
+		return this.getName().getReadableName();
+	}
 }
