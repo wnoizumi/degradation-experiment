@@ -22,6 +22,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -127,7 +130,35 @@ public class ShowPatternCase extends JFrame {
 	}
 
 	protected void selectMethodLines(Method method) {
-		//TODO select the method in the source code text area
+		char lineSeparator = '\n';
+		String text = sourceTextArea.getText();
+		int lineCount = 1;
+		int startPosition = 0;
+		int endPosition = 0;
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) == lineSeparator) {
+				lineCount++;
+			}
+			if (lineCount == method.getStartLineNumber() - 1) {
+				startPosition = i;
+			}
+			if (lineCount == method.getEndLineNumber() + 1) {
+				endPosition = i;
+				break;
+			}
+		}
+
+		sourceTextArea.requestFocusInWindow();
+		sourceTextArea.select(startPosition, endPosition);
+
+		Highlighter h = sourceTextArea.getHighlighter();
+		h.removeAllHighlights();
+		try {
+			h.addHighlight(startPosition, endPosition, DefaultHighlighter.DefaultPainter);
+		} catch (BadLocationException e) {
+			System.out.println("Failed to highlight source code position");
+			System.out.println(e.getMessage());
+		}
 	}
 
 	protected void fillAllMethodInformation(Method method) {
@@ -154,13 +185,14 @@ public class ShowPatternCase extends JFrame {
 		for (MetricName metricName : MetricName.values()) {
 			Double metricValue = resource.getMetricValue(metricName);
 			if (metricValue != null && metricName != MetricName.IsAbstract) {
-				DefaultMutableTreeNode metricNode = new DefaultMutableTreeNode(new MetricValueTuple(metricName, metricValue));
+				DefaultMutableTreeNode metricNode = new DefaultMutableTreeNode(
+						new MetricValueTuple(metricName, metricValue));
 				topMetricsNode.add(metricNode);
 			}
 		}
 
 		metricsTree.expandRow(0);
-		
+
 		metricsTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) metricsTree.getLastSelectedPathComponent();
@@ -171,14 +203,13 @@ public class ShowPatternCase extends JFrame {
 				Object nodeInfo = node.getUserObject();
 				if (nodeInfo instanceof MetricValueTuple) {
 					fillMetricInformation((MetricValueTuple) nodeInfo);
-				} 
+				}
 			}
 		});
 	}
 
 	protected void fillMetricInformation(MetricValueTuple tuple) {
 		informationTextArea.setText(MetricInformationProvider.getInfoFor(tuple.getMetricName()));
-		
 	}
 
 	private void fillSmellsTree(Resource resource) {
@@ -199,7 +230,7 @@ public class ShowPatternCase extends JFrame {
 
 		if (resource.getSmells().size() > 0)
 			smellsTree.expandRow(0);
-		
+
 		smellsTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) smellsTree.getLastSelectedPathComponent();
@@ -210,7 +241,7 @@ public class ShowPatternCase extends JFrame {
 				Object nodeInfo = node.getUserObject();
 				if (nodeInfo instanceof Smell) {
 					fillSmellInformation((Smell) nodeInfo);
-				} 
+				}
 			}
 		});
 	}
@@ -255,8 +286,8 @@ public class ShowPatternCase extends JFrame {
 		refactoringTextArea = new JTextArea();
 		refactoringTextArea.setLineWrap(true);
 		refactoringTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-		JScrollPane refactoringScrollPane = new JScrollPane(refactoringTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane refactoringScrollPane = new JScrollPane(refactoringTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		additionalInfoTabbedPane.addTab("Refactorings Suggestion", null, refactoringScrollPane, null);
 
 		JTabbedPane informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -265,8 +296,8 @@ public class ShowPatternCase extends JFrame {
 		informationTextArea.setLineWrap(true);
 		informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		informationTextArea.setEditable(false);
-		JScrollPane informationScrollPane = new JScrollPane(informationTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		informationTabbedPane.addTab("Information", null, informationScrollPane, null);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -277,49 +308,46 @@ public class ShowPatternCase extends JFrame {
 		sourceScrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
-		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(additionalInfoTabbedPane, GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
-							.addGap(5)
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING).addGroup(gl_contentPane
+				.createSequentialGroup()
+				.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPane
+						.createSequentialGroup()
+						.addComponent(additionalInfoTabbedPane, GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+						.addGap(5)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 								.addComponent(informationTabbedPane, GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
+								.addGroup(gl_contentPane.createSequentialGroup().addGap(178).addComponent(tabbedPane,
+										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))))
+						.addGroup(gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
+										.addComponent(smellsTabbedPane).addComponent(classestabbedPane,
+												GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
+								.addPreferredGap(ComponentPlacement.UNRELATED)
+								.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 733, Short.MAX_VALUE)))
+				.addGap(9))
+				.addGroup(gl_contentPane.createSequentialGroup().addContainerGap(825, Short.MAX_VALUE)
+						.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 144, GroupLayout.PREFERRED_SIZE)
+						.addContainerGap()));
+		gl_contentPane.setVerticalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 								.addGroup(gl_contentPane.createSequentialGroup()
-									.addGap(178)
-									.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(smellsTabbedPane)
-								.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 733, Short.MAX_VALUE)))
-					.addGap(9))
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap(825, Short.MAX_VALUE)
-					.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 144, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap())
-		);
-		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-							.addGap(5)
-							.addComponent(smellsTabbedPane, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
-						.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
-					.addGap(5)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-						.addComponent(additionalInfoTabbedPane, GroupLayout.PREFERRED_SIZE, 198, GroupLayout.PREFERRED_SIZE)
-						.addComponent(informationTabbedPane, GroupLayout.PREFERRED_SIZE, 198, GroupLayout.PREFERRED_SIZE)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(96)
-							.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(13)
-					.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
-		);
+										.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+										.addGap(5)
+										.addComponent(smellsTabbedPane, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
+								.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
+						.addGap(5)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(additionalInfoTabbedPane, GroupLayout.PREFERRED_SIZE, 198,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(informationTabbedPane, GroupLayout.PREFERRED_SIZE, 198,
+										GroupLayout.PREFERRED_SIZE)
+								.addGroup(gl_contentPane.createSequentialGroup().addGap(96).addComponent(tabbedPane,
+										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)))
+						.addGap(13)
+						.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)));
 
 		sourceTextArea = new JTextArea();
 		sourceTextArea.setEditable(false);
@@ -330,8 +358,8 @@ public class ShowPatternCase extends JFrame {
 		degradationInfoTextArea.setLineWrap(true);
 		degradationInfoTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		degradationInfoTextArea.setEditable(false);
-		JScrollPane degradationInfoScrollPane = new JScrollPane(degradationInfoTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane degradationInfoScrollPane = new JScrollPane(degradationInfoTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		additionalInfoTabbedPane.addTab("Degradation Info", null, degradationInfoScrollPane, null);
 		contentPane.setLayout(gl_contentPane);
 	}
