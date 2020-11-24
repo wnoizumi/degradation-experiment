@@ -37,6 +37,7 @@ import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.ui.util.DegradationInfoProvider;
 import br.pucrio.opus.smells.ui.util.MetricInformationProvider;
 import br.pucrio.opus.smells.ui.util.MetricValueTuple;
+import br.pucrio.opus.smells.ui.util.RefactoringsSuggestionProvider;
 import br.pucrio.opus.smells.ui.util.SmellInformationProvider;
 
 public class ShowPatternCase extends JFrame {
@@ -86,6 +87,7 @@ public class ShowPatternCase extends JFrame {
 		metricsTree.setModel(emptyTreeModel);
 		smellsTree.setModel(emptyTreeModel);
 		informationTextArea.setText("");
+		refactoringTextArea.setText("");
 		
 		Highlighter h = sourceTextArea.getHighlighter();
 		h.removeAllHighlights();
@@ -216,6 +218,7 @@ public class ShowPatternCase extends JFrame {
 	}
 
 	protected void fillMetricInformation(MetricValueTuple tuple) {
+		refactoringTextArea.setText("");
 		informationTextArea.setText(MetricInformationProvider.getInfoFor(tuple.getMetricName()));
 	}
 
@@ -254,6 +257,7 @@ public class ShowPatternCase extends JFrame {
 	}
 
 	protected void fillSmellInformation(Smell smell) {
+		refactoringTextArea.setText(RefactoringsSuggestionProvider.getInfoFor(smell));
 		informationTextArea.setText(SmellInformationProvider.getInfoFor(smell));
 	}
 
@@ -290,24 +294,24 @@ public class ShowPatternCase extends JFrame {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		additionalInfoTabbedPane.addTab("Metrics", null, metricsScrollPane, null);
 
+		JTabbedPane informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		
+				informationTextArea = new JTextArea();
+				informationTextArea.setLineWrap(true);
+				informationTextArea.setWrapStyleWord(true);
+				informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+				informationTextArea.setEditable(false);
+				JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				informationTabbedPane.addTab("Smell/Metric Information", null, informationScrollPane, null);
+
 		refactoringTextArea = new JTextArea();
 		refactoringTextArea.setWrapStyleWord(true);
 		refactoringTextArea.setLineWrap(true);
 		refactoringTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		JScrollPane refactoringScrollPane = new JScrollPane(refactoringTextArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		additionalInfoTabbedPane.addTab("Refactorings Suggestion", null, refactoringScrollPane, null);
-
-		JTabbedPane informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
-
-		informationTextArea = new JTextArea();
-		informationTextArea.setLineWrap(true);
-		informationTextArea.setWrapStyleWord(true);
-		informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-		informationTextArea.setEditable(false);
-		JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		informationTabbedPane.addTab("Information", null, informationScrollPane, null);
+		informationTabbedPane.addTab("Refactorings Suggestion", null, refactoringScrollPane, null);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 

@@ -8,7 +8,7 @@ import br.pucrio.opus.smells.metrics.MetricName;
 import br.pucrio.opus.smells.resources.Resource;
 
 /**
- * All chains of methods’ calls longer than three.
+ * All chains of methods' calls longer than three.
  * @author Diego Cedrim
  */
 public class MessageChain extends SmellDetector {
