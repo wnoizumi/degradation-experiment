@@ -144,7 +144,7 @@ public class Type extends Resource {
 	
 	@Override
 	public String toString() {
-		return getFullyQualifiedName();
+		return getBinding().getName();
 	}
 
 	public boolean isInterface() {

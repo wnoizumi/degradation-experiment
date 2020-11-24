@@ -86,6 +86,9 @@ public class ShowPatternCase extends JFrame {
 		metricsTree.setModel(emptyTreeModel);
 		smellsTree.setModel(emptyTreeModel);
 		informationTextArea.setText("");
+		
+		Highlighter h = sourceTextArea.getHighlighter();
+		h.removeAllHighlights();
 	}
 
 	private void fillSourceCode(String absoluteFilePath) throws IOException {
@@ -104,8 +107,10 @@ public class ShowPatternCase extends JFrame {
 		DefaultMutableTreeNode rootClassNode = new DefaultMutableTreeNode(type);
 		topClassesNode.add(rootClassNode);
 		for (Method method : type.getMethods()) {
-			DefaultMutableTreeNode methodNode = new DefaultMutableTreeNode(method);
-			rootClassNode.add(methodNode);
+			if (method.getSmells().size() > 0) {
+				DefaultMutableTreeNode methodNode = new DefaultMutableTreeNode(method);
+				rootClassNode.add(methodNode);
+			}
 		}
 
 		classesTree.expandRow(0);
@@ -149,7 +154,6 @@ public class ShowPatternCase extends JFrame {
 		}
 
 		sourceTextArea.requestFocusInWindow();
-		sourceTextArea.select(startPosition, endPosition);
 
 		Highlighter h = sourceTextArea.getHighlighter();
 		h.removeAllHighlights();
@@ -159,6 +163,9 @@ public class ShowPatternCase extends JFrame {
 			System.out.println("Failed to highlight source code position");
 			System.out.println(e.getMessage());
 		}
+		
+		int focusPosition = (startPosition + endPosition) / 2; 
+		sourceTextArea.setCaretPosition(focusPosition);
 	}
 
 	protected void fillAllMethodInformation(Method method) {
@@ -284,6 +291,7 @@ public class ShowPatternCase extends JFrame {
 		additionalInfoTabbedPane.addTab("Metrics", null, metricsScrollPane, null);
 
 		refactoringTextArea = new JTextArea();
+		refactoringTextArea.setWrapStyleWord(true);
 		refactoringTextArea.setLineWrap(true);
 		refactoringTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		JScrollPane refactoringScrollPane = new JScrollPane(refactoringTextArea,
@@ -294,6 +302,7 @@ public class ShowPatternCase extends JFrame {
 
 		informationTextArea = new JTextArea();
 		informationTextArea.setLineWrap(true);
+		informationTextArea.setWrapStyleWord(true);
 		informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		informationTextArea.setEditable(false);
 		JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
@@ -356,6 +365,7 @@ public class ShowPatternCase extends JFrame {
 
 		degradationInfoTextArea = new JTextArea();
 		degradationInfoTextArea.setLineWrap(true);
+		degradationInfoTextArea.setWrapStyleWord(true);
 		degradationInfoTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		degradationInfoTextArea.setEditable(false);
 		JScrollPane degradationInfoScrollPane = new JScrollPane(degradationInfoTextArea,

@@ -104,6 +104,16 @@ public class Method extends Resource {
 	
 	@Override
 	public String toString() {
-		return getFullyQualifiedName();
+		StringBuilder methodDescription = new StringBuilder();
+		methodDescription.append(getBinding().getName());
+		methodDescription.append("(");
+		for (int i = 0; i < parametersTypes.size(); i++) {
+			methodDescription.append(parametersTypes.get(i));
+			if (i < parametersTypes.size() - 1) {
+				methodDescription.append(", ");
+			}
+		}
+		methodDescription.append(")");
+		return methodDescription.toString();
 	}
 }
