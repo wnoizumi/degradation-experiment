@@ -1,9 +1,9 @@
 package br.pucrio.opus.smells.filechanges;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.pucrio.opus.smells.resources.Type;
 
@@ -11,7 +11,7 @@ public class FileChangesManager {
 
 	List<TypeChangesHolder> changes;
 
-	public FileChangesManager(List<Type> allTypes) throws IOException {
+	public FileChangesManager(List<Type> allTypes) {
 		changes = new ArrayList<>();
 		for (Type type : allTypes) {
 			changes.add(new TypeChangesHolder(type));
@@ -28,8 +28,13 @@ public class FileChangesManager {
 		}
 	}
 
-	public List<TypeChangesHolder> getSortedListOfFileChanges() {
-		Collections.sort(changes, Collections.reverseOrder());
-		return changes;
+	public Map<Type, TypeChangesHolder> getMapOfFileChanges() {
+		Map<Type, TypeChangesHolder> map = new HashMap<>();
+		
+		for (TypeChangesHolder typeChangesHolder : changes) {
+			map.put(typeChangesHolder.getType(), typeChangesHolder);
+		}
+		
+		return map;
 	}
 }

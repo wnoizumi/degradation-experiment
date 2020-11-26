@@ -1,11 +1,11 @@
 package br.pucrio.opus.smells.ui.controllers;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,25 +17,25 @@ import br.pucrio.opus.smells.agglomeration.SmellyGraphBuilder;
 import br.pucrio.opus.smells.collector.ClassLevelSmellDetector;
 import br.pucrio.opus.smells.collector.MethodLevelSmellDetector;
 import br.pucrio.opus.smells.collector.Smell;
+import br.pucrio.opus.smells.filechanges.FileChangesManager;
 import br.pucrio.opus.smells.gson.ObservableExclusionStrategy;
 import br.pucrio.opus.smells.metrics.MethodMetricValueCollector;
 import br.pucrio.opus.smells.metrics.TypeMetricValueCollector;
 import br.pucrio.opus.smells.patterns.SmellPatternsFinder;
-import br.pucrio.opus.smells.patterns.model.PatternModel;
 import br.pucrio.opus.smells.resources.JavaFilesFinder;
 import br.pucrio.opus.smells.resources.Method;
 import br.pucrio.opus.smells.resources.SourceFile;
 import br.pucrio.opus.smells.resources.SourceFilesLoader;
 import br.pucrio.opus.smells.resources.Type;
-import br.pucrio.opus.smells.ui.windows.ShowPatternCase;
+import br.pucrio.opus.smells.ui.util.ExperimentalData;
 
-public class ExperimentController {
+public class DataCollectionController {
 
-	private static Object lock = new Object();
-	
 	private List<Type> allTypes = new ArrayList<>();
 	private SmellyGraph graph = new SmellyGraph();
-	SmellPatternsFinder patternsFinder = new SmellPatternsFinder();
+	private SmellPatternsFinder patternsFinder = new SmellPatternsFinder();
+	FileChangesManager changesManager = null;
+	private ExperimentalData experimentalData = null;
 
 	public void collectData(String sourcePath) throws IOException, InterruptedException {
 		loadAllTypes(sourcePath);
@@ -43,47 +43,46 @@ public class ExperimentController {
 		detectSmells();
 		buildGraph();
 		findSmellPatterns();
-		startExperiment();
+		loadChangeData(sourcePath);
+		setExperimentalData();
 	}
 
-	private void startExperiment() throws InterruptedException, IOException {
-		PatternModel patternToShow = null;
-		if (patternsFinder.getMultipleSmellsPatterns().size() > 0) {
-			patternToShow = patternsFinder.getMultipleSmellsPatterns().get(0);
-		} else {
-			patternToShow = patternsFinder.getSingleSmellPatterns().get(0);
+	private void loadChangeData(String sourcePath) {
+		changesManager = new FileChangesManager(allTypes);
+		ProcessBuilder builder = new ProcessBuilder("git", "log", "--all", "--name-only", "--pretty=\"format:\"",
+				"*.java");
+		builder.directory(new File(sourcePath));
+		builder.redirectErrorStream(true);
+		Process process;
+		try {
+			process = builder.start();
+			List<String> changedFiles = getResults(process);
+			for (String filePath : changedFiles) {
+				changesManager.incrementChangesOf(filePath);
+			}
+		} catch (IOException e) {
+			System.out.println("Unable to collect source code change data from git.");
+			System.out.println(e.getMessage());
 		}
-		
-		ShowPatternCase frame = new ShowPatternCase(patternToShow);
-		frame.setVisible(true);
-		
-		Thread t = new Thread() {
-	        public void run() {
-	            synchronized(lock) {
-	                while (frame.isVisible())
-	                    try {
-	                        lock.wait();
-	                    } catch (InterruptedException e) {
-	                        e.printStackTrace();
-	                    }
-	            }
-	        }
-	    };
-	    t.start();
+	}
 
-	    frame.addWindowListener(new WindowAdapter() {
+	private List<String> getResults(Process process) throws IOException {
+		List<String> resultingLines = new ArrayList<>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		String line = "";
+		while ((line = reader.readLine()) != null) {
+			resultingLines.add(line);
+		}
+		return resultingLines;
+	}
 
-	        @Override
-	        public void windowClosing(WindowEvent arg0) {
-	            synchronized (lock) {
-	                frame.setVisible(false);
-	                lock.notify();
-	            }
-	        }
+	private void setExperimentalData() {
+		experimentalData = new ExperimentalData(allTypes, patternsFinder.getSingleSmellPatterns(),
+				patternsFinder.getMultipleSmellsPatterns(), changesManager.getMapOfFileChanges());
+	}
 
-	    });
-
-	    t.join();
+	public ExperimentalData getExperimentalData() {
+		return this.experimentalData;
 	}
 
 	private void findSmellPatterns() {

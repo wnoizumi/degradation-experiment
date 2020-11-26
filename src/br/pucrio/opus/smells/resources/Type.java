@@ -150,4 +150,12 @@ public class Type extends Resource {
 	public boolean isInterface() {
 		return this.getKind().contains("interface");
 	}
+	
+	public Set<Smell> getAllSmells() {
+		Set<Smell> allSmells = new HashSet<Smell>(this.getSmells());
+		for (Method m : this.methods) {
+			allSmells.addAll(m.getSmells());
+		}
+		return allSmells;
+	}
 }

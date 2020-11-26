@@ -3,6 +3,10 @@ package br.pucrio.opus.smells.ui.windows;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,6 +16,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -31,13 +36,15 @@ import javax.swing.tree.DefaultTreeModel;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.metrics.MetricName;
 import br.pucrio.opus.smells.patterns.model.PatternKind;
-import br.pucrio.opus.smells.patterns.model.PatternModel;
 import br.pucrio.opus.smells.resources.Method;
 import br.pucrio.opus.smells.resources.Resource;
+import br.pucrio.opus.smells.ui.util.Case;
 import br.pucrio.opus.smells.ui.util.DegradationInfoProvider;
 import br.pucrio.opus.smells.ui.util.MetricInformationProvider;
 import br.pucrio.opus.smells.ui.util.MetricValueTuple;
+import br.pucrio.opus.smells.ui.util.MultipleSmellsPatternCase;
 import br.pucrio.opus.smells.ui.util.RefactoringsSuggestionProvider;
+import br.pucrio.opus.smells.ui.util.SingleSmellsPatternCase;
 import br.pucrio.opus.smells.ui.util.SmellInformationProvider;
 
 public class ShowPatternCase extends JFrame {
@@ -52,6 +59,7 @@ public class ShowPatternCase extends JFrame {
 	private JScrollPane sourceScrollPane;
 	private JTextArea sourceTextArea;
 	private JTextArea degradationInfoTextArea;
+	private Case caseToShow;
 
 	/**
 	 * Launch the application.
@@ -69,16 +77,27 @@ public class ShowPatternCase extends JFrame {
 		});
 	}
 
-	public ShowPatternCase(PatternModel model) throws IOException {
+	public ShowPatternCase(Case caseToShow) throws IOException {
 		this();
+		this.caseToShow = caseToShow;
+		this.setTitle("Case #" + caseToShow.getCaseNumber());
 		cleanAllDynamicInformation();
-		fillClassesTree(model.getRootType());
-		fillSourceCode(model.getRootType().getAbsoluteFilePath());
-		fillDegradationInformation(model.getKind());
+		fillClassesTree(caseToShow.getType());
+		fillSourceCode(caseToShow.getType().getAbsoluteFilePath());
+		fillDegradationInformation(caseToShow);
+
 	}
 
-	private void fillDegradationInformation(PatternKind kind) {
-		degradationInfoTextArea.setText(DegradationInfoProvider.getInfoFor(kind));
+	private void fillDegradationInformation(Case caseToShow) {
+		if (caseToShow instanceof MultipleSmellsPatternCase) {
+			PatternKind kind = ((MultipleSmellsPatternCase) caseToShow).getPattern().getKind();
+			degradationInfoTextArea.setText(DegradationInfoProvider.getInfoFor(kind));
+		} else if (caseToShow instanceof SingleSmellsPatternCase) {
+			PatternKind kind = ((SingleSmellsPatternCase) caseToShow).getPattern().getKind();
+			degradationInfoTextArea.setText(DegradationInfoProvider.getInfoFor(kind));
+		} else {
+			degradationInfoTextArea.setText("No degradation information available.");
+		}
 	}
 
 	private void cleanAllDynamicInformation() {
@@ -88,7 +107,7 @@ public class ShowPatternCase extends JFrame {
 		smellsTree.setModel(emptyTreeModel);
 		informationTextArea.setText("");
 		refactoringTextArea.setText("");
-		
+
 		Highlighter h = sourceTextArea.getHighlighter();
 		h.removeAllHighlights();
 	}
@@ -165,8 +184,8 @@ public class ShowPatternCase extends JFrame {
 			System.out.println("Failed to highlight source code position");
 			System.out.println(e.getMessage());
 		}
-		
-		int focusPosition = (startPosition + endPosition) / 2; 
+
+		int focusPosition = (startPosition + endPosition) / 2;
 		sourceTextArea.setCaretPosition(focusPosition);
 	}
 
@@ -265,7 +284,7 @@ public class ShowPatternCase extends JFrame {
 	 * Create the frame.
 	 */
 	public ShowPatternCase() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 1003, 736);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -295,15 +314,15 @@ public class ShowPatternCase extends JFrame {
 		additionalInfoTabbedPane.addTab("Metrics", null, metricsScrollPane, null);
 
 		JTabbedPane informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		
-				informationTextArea = new JTextArea();
-				informationTextArea.setLineWrap(true);
-				informationTextArea.setWrapStyleWord(true);
-				informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-				informationTextArea.setEditable(false);
-				JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
-						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				informationTabbedPane.addTab("Smell/Metric Information", null, informationScrollPane, null);
+
+		informationTextArea = new JTextArea();
+		informationTextArea.setLineWrap(true);
+		informationTextArea.setWrapStyleWord(true);
+		informationTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+		informationTextArea.setEditable(false);
+		JScrollPane informationScrollPane = new JScrollPane(informationTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		informationTabbedPane.addTab("Smell/Metric Information", null, informationScrollPane, null);
 
 		refactoringTextArea = new JTextArea();
 		refactoringTextArea.setWrapStyleWord(true);
@@ -315,52 +334,56 @@ public class ShowPatternCase extends JFrame {
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
-		btnFinishCase = new JButton("Finish Case");
+		btnFinishCase = new JButton("Copy case data to clipboard");
+		btnFinishCase.addActionListener(finishCaseAction());
 		btnFinishCase.setActionCommand("Finish Case");
 
 		sourceScrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
-		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING).addGroup(gl_contentPane
-				.createSequentialGroup()
-				.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPane
-						.createSequentialGroup()
-						.addComponent(additionalInfoTabbedPane, GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
-						.addGap(5)
-						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-								.addComponent(informationTabbedPane, GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-								.addGroup(gl_contentPane.createSequentialGroup().addGap(178).addComponent(tabbedPane,
-										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-										GroupLayout.PREFERRED_SIZE))))
-						.addGroup(gl_contentPane.createSequentialGroup()
-								.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-										.addComponent(smellsTabbedPane).addComponent(classestabbedPane,
-												GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
-								.addPreferredGap(ComponentPlacement.UNRELATED)
-								.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 733, Short.MAX_VALUE)))
-				.addGap(9))
-				.addGroup(gl_contentPane.createSequentialGroup().addContainerGap(825, Short.MAX_VALUE)
-						.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 144, GroupLayout.PREFERRED_SIZE)
-						.addContainerGap()));
-		gl_contentPane.setVerticalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+		gl_contentPane.setHorizontalGroup(
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(additionalInfoTabbedPane, GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+							.addGap(5)
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addComponent(informationTabbedPane, GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
 								.addGroup(gl_contentPane.createSequentialGroup()
-										.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-										.addGap(5)
-										.addComponent(smellsTabbedPane, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
-								.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
-						.addGap(5)
-						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(additionalInfoTabbedPane, GroupLayout.PREFERRED_SIZE, 198,
-										GroupLayout.PREFERRED_SIZE)
-								.addComponent(informationTabbedPane, GroupLayout.PREFERRED_SIZE, 198,
-										GroupLayout.PREFERRED_SIZE)
-								.addGroup(gl_contentPane.createSequentialGroup().addGap(96).addComponent(tabbedPane,
-										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-										GroupLayout.PREFERRED_SIZE)))
-						.addGap(13)
-						.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)));
+									.addGap(178)
+									.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(smellsTabbedPane)
+								.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 733, Short.MAX_VALUE)))
+					.addGap(9))
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap(661, Short.MAX_VALUE)
+					.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 308, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
+		);
+		gl_contentPane.setVerticalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(classestabbedPane, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+							.addGap(5)
+							.addComponent(smellsTabbedPane, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
+						.addComponent(sourceScrollPane, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
+					.addGap(5)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(additionalInfoTabbedPane, GroupLayout.PREFERRED_SIZE, 198, GroupLayout.PREFERRED_SIZE)
+						.addComponent(informationTabbedPane, GroupLayout.PREFERRED_SIZE, 198, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addGap(96)
+							.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+					.addGap(13)
+					.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+		);
 
 		sourceTextArea = new JTextArea();
 		sourceTextArea.setEditable(false);
@@ -376,5 +399,13 @@ public class ShowPatternCase extends JFrame {
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		additionalInfoTabbedPane.addTab("Degradation Info", null, degradationInfoScrollPane, null);
 		contentPane.setLayout(gl_contentPane);
+	}
+
+	private ActionListener finishCaseAction() {
+		return e -> {
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(new StringSelection(caseToShow.getCaseDescription()), null);
+				JOptionPane.showMessageDialog(this, "Case data copied to clipboard!");
+		};
 	}
 }
