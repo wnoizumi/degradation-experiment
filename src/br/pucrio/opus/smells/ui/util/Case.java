@@ -19,7 +19,7 @@ public class Case {
 	}
 	
 	public String getCaseDescription() {
-		String caseNumber = "Case #" + this.getCaseNumber();
+		String caseNumber = "Case #" + this.getCaseNumber() + System.lineSeparator();
 		String caseType = getCaseType();
 		String className = "Root Class: " + type.getFullyQualifiedName() + System.lineSeparator();
 		String classSmells = "Class Smells:" + type.getSmells()
@@ -33,7 +33,7 @@ public class Case {
 			}
 		}
 		
-		return caseType + className + classSmells + methodSmells;
+		return caseNumber + caseType + className + classSmells + methodSmells;
 	}
 
 	protected String getCaseType() {
