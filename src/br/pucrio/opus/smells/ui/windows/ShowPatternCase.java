@@ -33,6 +33,10 @@ import javax.swing.text.Highlighter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.metrics.MetricName;
 import br.pucrio.opus.smells.patterns.model.PatternKind;
@@ -56,8 +60,8 @@ public class ShowPatternCase extends JFrame {
 	private JTextArea refactoringTextArea;
 	private JTree metricsTree;
 	private JButton btnFinishCase;
-	private JScrollPane sourceScrollPane;
-	private JTextArea sourceTextArea;
+	private RTextScrollPane sourceScrollPane;
+	private RSyntaxTextArea sourceTextArea;
 	private JTextArea degradationInfoTextArea;
 	private Case caseToShow;
 
@@ -338,8 +342,7 @@ public class ShowPatternCase extends JFrame {
 		btnFinishCase.addActionListener(finishCaseAction());
 		btnFinishCase.setActionCommand("Finish Case");
 
-		sourceScrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sourceScrollPane = new RTextScrollPane();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
@@ -385,9 +388,10 @@ public class ShowPatternCase extends JFrame {
 					.addComponent(btnFinishCase, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
 		);
 
-		sourceTextArea = new JTextArea();
+		sourceTextArea = new RSyntaxTextArea();
+		sourceTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+		sourceTextArea.setCodeFoldingEnabled(true);
 		sourceTextArea.setEditable(false);
-		sourceTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		sourceScrollPane.setViewportView(sourceTextArea);
 
 		degradationInfoTextArea = new JTextArea();
