@@ -64,6 +64,7 @@ public class ShowPatternCase extends JFrame {
 	private RSyntaxTextArea sourceTextArea;
 	private JTextArea degradationInfoTextArea;
 	private Case caseToShow;
+	private JTabbedPane informationTabbedPane;
 
 	/**
 	 * Launch the application.
@@ -241,8 +242,8 @@ public class ShowPatternCase extends JFrame {
 	}
 
 	protected void fillMetricInformation(MetricValueTuple tuple) {
-		refactoringTextArea.setText("");
 		informationTextArea.setText(MetricInformationProvider.getInfoFor(tuple.getMetricName()));
+		informationTabbedPane.setSelectedIndex(0);
 	}
 
 	private void fillSmellsTree(Resource resource) {
@@ -282,6 +283,7 @@ public class ShowPatternCase extends JFrame {
 	protected void fillSmellInformation(Smell smell) {
 		refactoringTextArea.setText(RefactoringsSuggestionProvider.getInfoFor(smell));
 		informationTextArea.setText(SmellInformationProvider.getInfoFor(smell));
+		informationTabbedPane.setSelectedIndex(0);
 	}
 
 	/**
@@ -317,7 +319,7 @@ public class ShowPatternCase extends JFrame {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		additionalInfoTabbedPane.addTab("Metrics", null, metricsScrollPane, null);
 
-		JTabbedPane informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		informationTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
 		informationTextArea = new JTextArea();
 		informationTextArea.setLineWrap(true);
