@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,7 +17,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -340,7 +340,7 @@ public class ShowPatternCase extends JFrame {
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
-		btnFinishCase = new JButton("Copy case data to clipboard");
+		btnFinishCase = new JButton("Copy Data and Open Next Case");
 		btnFinishCase.addActionListener(finishCaseAction());
 		btnFinishCase.setActionCommand("Finish Case");
 
@@ -409,9 +409,7 @@ public class ShowPatternCase extends JFrame {
 
 	private ActionListener finishCaseAction() {
 		return e -> {
-				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(new StringSelection(caseToShow.getCaseDescription()), null);
-				JOptionPane.showMessageDialog(this, "Case data copied to clipboard!");
+				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		};
 	}
 }

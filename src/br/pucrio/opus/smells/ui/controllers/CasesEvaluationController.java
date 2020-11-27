@@ -1,10 +1,15 @@
 package br.pucrio.opus.smells.ui.controllers;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.swing.JOptionPane;
 
 import br.pucrio.opus.smells.ui.util.Case;
 import br.pucrio.opus.smells.ui.util.ExperimentalData;
@@ -59,6 +64,9 @@ public class CasesEvaluationController {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				synchronized (lock) {
+					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					clipboard.setContents(new StringSelection(caseToShow.getCaseDescription()), null);
+					JOptionPane.showMessageDialog(null, "Case data copied to clipboard!");
 					frame.setVisible(false);
 					lock.notify();
 				}
