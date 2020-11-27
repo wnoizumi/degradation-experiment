@@ -82,27 +82,29 @@ public class SmellPatternsFinder {
 				if (!foundFatInterface) {
 					HashSet<SmellName> fatInterfaceSmells = new HashSet<>();
 					SmellyNode node = getNodeOfType(type, graph);
-					for (SmellyEdge edge : node.getIncomingEdges()) {
-						Set<Smell> smellsToCheck = null;
-						Resource resource = edge.getOrigin().getResource();
-						if (resource instanceof Type) {
-							smellsToCheck = ((Type)resource).getAllSmells();
-						} else {
-							//TODO check if this happens
-							System.out.println("Not a type in the graph");
-						}
-						
-						for (Smell smell : smellsToCheck) {
-							if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
-								fatInterfaceSmells.add(smell.getName());
+					if (node != null) {
+						for (SmellyEdge edge : node.getIncomingEdges()) {
+							Set<Smell> smellsToCheck = null;
+							Resource resource = edge.getOrigin().getResource();
+							if (resource instanceof Type) {
+								smellsToCheck = ((Type)resource).getAllSmells();
+							} else {
+								//TODO check if this happens
+								System.out.println("Not a type in the graph");
+							}
+							
+							for (Smell smell : smellsToCheck) {
+								if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
+									fatInterfaceSmells.add(smell.getName());
+								}
 							}
 						}
-					}
-					if (fatInterfaceSmells.size() > 1) {
-						PatternModel pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
-						float completeness = fatInterfaceSmells.size() / ((float) SmellsOfPatterns.FAT_INTERFACE.size());
-						pattern.setPatternCompleteness(completeness);
-						multipleSmellsPatterns.add(pattern);
+						if (fatInterfaceSmells.size() > 1) {
+							PatternModel pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
+							float completeness = fatInterfaceSmells.size() / ((float) SmellsOfPatterns.FAT_INTERFACE.size());
+							pattern.setPatternCompleteness(completeness);
+							multipleSmellsPatterns.add(pattern);
+						}
 					}
 				}
 			} 
