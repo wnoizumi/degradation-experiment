@@ -1,5 +1,7 @@
 package br.pucrio.opus.smells.ui.util;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import br.pucrio.opus.smells.patterns.model.PatternKind;
 
 public class DegradationInfoProvider {
@@ -10,8 +12,8 @@ public class DegradationInfoProvider {
 			return "This class may be impacted by a degradation problem called Concern Overload. " + System.lineSeparator() + 
 					"A Concern Overload occurs when a source code element is overloaded with too many responsibilities.";
 		case FAT_INTERFACE:
-			return "This interface may be the root of a degradation problem called Fat Interface. " + System.lineSeparator() + 
-					"A Fat Interface occurs when an interface exposes " + 
+			return "This code element may be the root of a degradation problem called Fat Interface. " + System.lineSeparator() + 
+					"A Fat Interface occurs when an class/interface exposes " + 
 					"multiple funcionalities and many of those functionalities are " + 
 					"not related to each other.";			
 		case INCOMPLETE_ABSTRACTION:
@@ -35,4 +37,11 @@ public class DegradationInfoProvider {
 		return "";
 	}
 
+	public static String getRandomInfo() {
+		PatternKind[] kinds = PatternKind.values();
+		int randomPosition = ThreadLocalRandom.current().nextInt(0, kinds.length);
+		if (randomPosition == kinds.length)
+			randomPosition--;
+		return getInfoFor(kinds[randomPosition]);
+	}
 }

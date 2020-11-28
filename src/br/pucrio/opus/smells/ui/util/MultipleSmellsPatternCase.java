@@ -26,4 +26,9 @@ public class MultipleSmellsPatternCase extends Case {
 		//MSP = Multiple Smells Pattern case
 		return "Case Type: MSP" + System.lineSeparator();
 	}
+	
+	@Override
+	public String getDegradationInfo() {
+		return DegradationInfoProvider.getInfoFor(this.pattern.getKind());
+	}
 }

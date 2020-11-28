@@ -3,9 +3,6 @@ package br.pucrio.opus.smells.ui.windows;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -53,6 +50,7 @@ import br.pucrio.opus.smells.ui.util.SmellInformationProvider;
 
 public class ShowPatternCase extends JFrame {
 
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTree classesTree;
 	private JTree smellsTree;
@@ -63,7 +61,6 @@ public class ShowPatternCase extends JFrame {
 	private RTextScrollPane sourceScrollPane;
 	private RSyntaxTextArea sourceTextArea;
 	private JTextArea degradationInfoTextArea;
-	private Case caseToShow;
 	private JTabbedPane informationTabbedPane;
 
 	/**
@@ -84,30 +81,24 @@ public class ShowPatternCase extends JFrame {
 
 	public ShowPatternCase(Case caseToShow) throws IOException {
 		this();
-		this.caseToShow = caseToShow;
 		this.setTitle("Case #" + caseToShow.getCaseNumber());
 		cleanAllDynamicInformation();
 		fillClassesTree(caseToShow.getType());
 		fillSourceCode(caseToShow.getType().getAbsoluteFilePath());
 		fillDegradationInformation(caseToShow);
-
 	}
 
 	private void fillDegradationInformation(Case caseToShow) {
-		if (caseToShow instanceof MultipleSmellsPatternCase) {
-			PatternKind kind = ((MultipleSmellsPatternCase) caseToShow).getPattern().getKind();
-			degradationInfoTextArea.setText(DegradationInfoProvider.getInfoFor(kind));
-		} else if (caseToShow instanceof SingleSmellsPatternCase) {
-			PatternKind kind = ((SingleSmellsPatternCase) caseToShow).getPattern().getKind();
-			degradationInfoTextArea.setText(DegradationInfoProvider.getInfoFor(kind));
+		//We only show degradation information in even cases.
+		if (caseToShow.getCaseNumber() % 2 == 0) {
+			degradationInfoTextArea.setText(caseToShow.getDegradationInfo());
 		} else {
-			degradationInfoTextArea.setText("No degradation information available.");
+			degradationInfoTextArea.setText("No degradation information.");
 		}
 	}
 
 	private void cleanAllDynamicInformation() {
-		DefaultMutableTreeNode topEmptyNode = new DefaultMutableTreeNode("");
-		DefaultTreeModel emptyTreeModel = new DefaultTreeModel(topEmptyNode);
+		DefaultTreeModel emptyTreeModel = new DefaultTreeModel(null);
 		metricsTree.setModel(emptyTreeModel);
 		smellsTree.setModel(emptyTreeModel);
 		informationTextArea.setText("");
@@ -247,37 +238,41 @@ public class ShowPatternCase extends JFrame {
 	}
 
 	private void fillSmellsTree(Resource resource) {
-		String topNodeDescription = "";
-		if (resource instanceof br.pucrio.opus.smells.resources.Type) {
-			topNodeDescription = "Class Smells";
-		} else {
-			topNodeDescription = "Method Smells";
-		}
-		DefaultMutableTreeNode topSmellsNode = new DefaultMutableTreeNode(topNodeDescription);
-		DefaultTreeModel smellsTreeModel = new DefaultTreeModel(topSmellsNode);
-		smellsTree.setModel(smellsTreeModel);
-
-		for (Smell smell : resource.getSmells()) {
-			DefaultMutableTreeNode smellNode = new DefaultMutableTreeNode(smell);
-			topSmellsNode.add(smellNode);
-		}
-
-		if (resource.getSmells().size() > 0)
-			smellsTree.expandRow(0);
-
-		smellsTree.addTreeSelectionListener(new TreeSelectionListener() {
-			public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) smellsTree.getLastSelectedPathComponent();
-
-				if (node == null)
-					return;
-
-				Object nodeInfo = node.getUserObject();
-				if (nodeInfo instanceof Smell) {
-					fillSmellInformation((Smell) nodeInfo);
-				}
+		if (resource.getSmells().size() > 0) {
+			String topNodeDescription = "";
+			if (resource instanceof br.pucrio.opus.smells.resources.Type) {
+				topNodeDescription = "Class Smells";
+			} else {
+				topNodeDescription = "Method Smells";
 			}
-		});
+			DefaultMutableTreeNode topSmellsNode = new DefaultMutableTreeNode(topNodeDescription);
+			DefaultTreeModel smellsTreeModel = new DefaultTreeModel(topSmellsNode);
+			smellsTree.setModel(smellsTreeModel);
+
+			for (Smell smell : resource.getSmells()) {
+				DefaultMutableTreeNode smellNode = new DefaultMutableTreeNode(smell);
+				topSmellsNode.add(smellNode);
+			}
+
+			if (resource.getSmells().size() > 0)
+				smellsTree.expandRow(0);
+
+			smellsTree.addTreeSelectionListener(new TreeSelectionListener() {
+				public void valueChanged(TreeSelectionEvent e) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) smellsTree.getLastSelectedPathComponent();
+
+					if (node == null)
+						return;
+
+					Object nodeInfo = node.getUserObject();
+					if (nodeInfo instanceof Smell) {
+						fillSmellInformation((Smell) nodeInfo);
+					}
+				}
+			});
+		} else {
+			smellsTree.setModel(null);
+		}
 	}
 
 	protected void fillSmellInformation(Smell smell) {

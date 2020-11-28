@@ -26,4 +26,9 @@ public class SingleSmellsPatternCase extends Case {
 		//SSP = Single Smell Pattern case
 		return "Case Type: SSP" + System.lineSeparator();
 	}
+	
+	@Override
+	public String getDegradationInfo() {
+		return DegradationInfoProvider.getInfoFor(this.pattern.getKind());
+	}
 }

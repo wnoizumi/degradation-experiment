@@ -8,10 +8,12 @@ public class Case {
 
 	private Type type;
 	private int caseNumber;
+	private String degradationInfo;
 
 	public Case(Type type, int caseNumber) {
 		this.type = type;
 		this.caseNumber = caseNumber;
+		this.degradationInfo = DegradationInfoProvider.getRandomInfo();
 	}
 
 	public Type getType() {
@@ -19,7 +21,7 @@ public class Case {
 	}
 	
 	public String getCaseDescription() {
-		String caseNumber = "Case #" + this.getCaseNumber() + System.lineSeparator();
+		String caseNumberStr = "Case #" + this.getCaseNumber() + System.lineSeparator();
 		String caseType = getCaseType();
 		String className = "Root Class: " + type.getFullyQualifiedName() + System.lineSeparator();
 		String classSmells = "Class Smells:" + type.getSmells()
@@ -33,7 +35,12 @@ public class Case {
 			}
 		}
 		
-		return caseNumber + caseType + className + classSmells + methodSmells;
+		String providedDegradationInfo = "Degradation Info: None.";
+		if (this.caseNumber % 2 == 0)
+			providedDegradationInfo = "Degradation Info: " + this.degradationInfo;
+		providedDegradationInfo += System.lineSeparator();
+		
+		return caseNumberStr + caseType + className + classSmells + methodSmells + providedDegradationInfo;
 	}
 
 	protected String getCaseType() {
@@ -43,5 +50,9 @@ public class Case {
 
 	public int getCaseNumber() {
 		return caseNumber;
+	}
+	
+	public String getDegradationInfo() {
+		return this.degradationInfo;
 	}
 }
