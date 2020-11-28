@@ -1,8 +1,0 @@
-Case #2
-Case Type: MSP
-Root Class: org.fife.ui.rsyntaxtextarea.folding.FoldParser
-Class Smells:
-LazyClass
-Method Smells:
-Degradation Info: This class may be related to the difficulty of maintaining the system.
-Kind: FAT_INTERFACE
