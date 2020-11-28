@@ -27,7 +27,6 @@ public class CasesEvaluationController {
 			System.out.println("Finished Analyzing Case #" + c.getCaseNumber());
 		}
 		System.out.println("Finished all cases. Thank you!!!");
-		System.exit(0);
 	}
 
 	private void saveCaseData(Case c) {

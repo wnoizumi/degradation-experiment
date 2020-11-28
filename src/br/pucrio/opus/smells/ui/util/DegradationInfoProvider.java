@@ -37,11 +37,7 @@ public class DegradationInfoProvider {
 		return "";
 	}
 
-	public static String getRandomInfo() {
-		PatternKind[] kinds = PatternKind.values();
-		int randomPosition = ThreadLocalRandom.current().nextInt(0, kinds.length);
-		if (randomPosition == kinds.length)
-			randomPosition--;
-		return getInfoFor(kinds[randomPosition]);
+	public static String getDefaultInfo() {
+		return "This class may be related to the difficulty of maintaining the system.";
 	}
 }

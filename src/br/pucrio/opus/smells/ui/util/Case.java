@@ -13,7 +13,7 @@ public class Case {
 	public Case(Type type, int caseNumber) {
 		this.type = type;
 		this.caseNumber = caseNumber;
-		this.degradationInfo = DegradationInfoProvider.getRandomInfo();
+		this.degradationInfo = DegradationInfoProvider.getDefaultInfo();
 	}
 
 	public Type getType() {

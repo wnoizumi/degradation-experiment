@@ -1,0 +1,16 @@
+Case #3
+Case Type: SSP
+Root Class: org.fife.print.RPrintUtilities
+Class Smells:
+SpaghettiCode
+ComplexClass
+SpeculativeGenerality
+Method Smells:
+LongMethod->org.fife.print.RPrintUtilities.printDocumentMonospaced
+LongParameterList->org.fife.print.RPrintUtilities.printDocumentMonospaced
+LongMethod->org.fife.print.RPrintUtilities.printDocumentMonospacedWordWrap
+LongParameterList->org.fife.print.RPrintUtilities.printDocumentMonospacedWordWrap
+LongParameterList->org.fife.print.RPrintUtilities.printDocumentWordWrap
+LongMethod->org.fife.print.RPrintUtilities.printDocumentWordWrap
+Degradation Info: None.
+Kind: UNUSED_ABSTRACTION

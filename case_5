@@ -1,0 +1,11 @@
+Case #5
+Case Type: NP
+Root Class: org.fife.ui.rsyntaxtextarea.Token
+Class Smells:
+Method Smells:
+LongParameterList->org.fife.ui.rsyntaxtextarea.Token.appendHTMLRepresentation
+LongParameterList->org.fife.ui.rsyntaxtextarea.Token.getListOffset
+LongParameterList->org.fife.ui.rsyntaxtextarea.Token.getOffsetBeforeX
+LongParameterList->org.fife.ui.rsyntaxtextarea.Token.getWidthUpTo
+LongParameterList->org.fife.ui.rsyntaxtextarea.Token.listOffsetToView
+Degradation Info: None.
