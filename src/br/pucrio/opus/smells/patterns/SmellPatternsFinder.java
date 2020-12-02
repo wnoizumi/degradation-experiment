@@ -20,11 +20,11 @@ public class SmellPatternsFinder {
 
 	private List<PatternModel> multipleSmellsPatterns = new ArrayList<PatternModel>();
 	private List<PatternModel> singleSmellPatterns = new ArrayList<PatternModel>();
-	
+
 	public List<PatternModel> getMultipleSmellsPatterns() {
 		return this.multipleSmellsPatterns;
 	}
-	
+
 	public List<PatternModel> getSingleSmellPatterns() {
 		return this.singleSmellPatterns;
 	}
@@ -71,43 +71,46 @@ public class SmellPatternsFinder {
 	private void detectFatInterface(List<Type> allTypes, SmellyGraph graph) {
 		for (Type type : allTypes) {
 			if (type.isInterface()) {
-				boolean foundFatInterface = false;
+				PatternModel pattern = null;
 				for (Smell smell : type.getAllSmells()) {
 					if (smell.getName().equals(SmellName.ShotgunSurgery)) {
-						multipleSmellsPatterns.add(new PatternModel(type, PatternKind.FAT_INTERFACE));
-						foundFatInterface = true;
+						pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
 					}
 				}
-				
-				if (!foundFatInterface) {
-					HashSet<SmellName> fatInterfaceSmells = new HashSet<>();
-					SmellyNode node = getNodeOfType(type, graph);
-					if (node != null) {
-						for (SmellyEdge edge : node.getIncomingEdges()) {
-							Set<Smell> smellsToCheck = null;
-							Resource resource = edge.getOrigin().getResource();
-							if (resource instanceof Type) {
-								smellsToCheck = ((Type)resource).getAllSmells();
-							} else {
-								//TODO check if this happens
-								System.out.println("Not a type in the graph");
-							}
-							
+
+				HashSet<SmellName> fatInterfaceSmells = new HashSet<>();
+				HashSet<Type> relatedTypes = new HashSet<>();
+				SmellyNode node = getNodeOfType(type, graph);
+				if (node != null) {
+					for (SmellyEdge edge : node.getIncomingEdges()) {
+						Set<Smell> smellsToCheck = null;
+						Resource resource = edge.getOrigin().getResource();
+						if (resource instanceof Type && !resource.equals(type)) {
+							smellsToCheck = ((Type) resource).getAllSmells();
+
 							for (Smell smell : smellsToCheck) {
 								if (SmellsOfPatterns.FAT_INTERFACE.contains(smell.getName())) {
 									fatInterfaceSmells.add(smell.getName());
+									relatedTypes.add((Type) resource);
 								}
 							}
 						}
-						if (fatInterfaceSmells.size() > 1) {
-							PatternModel pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
-							float completeness = fatInterfaceSmells.size() / ((float) SmellsOfPatterns.FAT_INTERFACE.size());
+					}
+					if (fatInterfaceSmells.size() > 1) {
+						if (pattern == null) {
+							pattern = new PatternModel(type, PatternKind.FAT_INTERFACE);
+							float completeness = fatInterfaceSmells.size()
+									/ ((float) SmellsOfPatterns.FAT_INTERFACE.size());
 							pattern.setPatternCompleteness(completeness);
-							multipleSmellsPatterns.add(pattern);
 						}
+						pattern.addRelatedTypes(relatedTypes);
 					}
 				}
-			} 
+				
+				if (pattern != null) {
+					multipleSmellsPatterns.add(pattern);
+				}
+			}
 		}
 	}
 
@@ -134,7 +137,8 @@ public class SmellPatternsFinder {
 
 			if (mandatorySmells.size() >= 1 && complementarySmells.size() >= 1) {
 				PatternModel pattern = new PatternModel(type, PatternKind.SCATTERED_CONCERN);
-				float completeness = complementarySmells.size() / ((float) SmellsOfPatterns.SCATTERED_CONCERN_COMPLEMENT.size());
+				float completeness = complementarySmells.size()
+						/ ((float) SmellsOfPatterns.SCATTERED_CONCERN_COMPLEMENT.size());
 				pattern.setPatternCompleteness(completeness);
 				multipleSmellsPatterns.add(pattern);
 			}

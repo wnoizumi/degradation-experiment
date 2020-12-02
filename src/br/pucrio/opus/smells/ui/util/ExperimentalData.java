@@ -88,8 +88,8 @@ public class ExperimentalData {
 			int result = o2.compareTo(o1);
 
 			if (result == 0) {
-				int firstNumSmells = o1.getRootType().getAllSmells().size();
-				int secondNumSmells = o2.getRootType().getAllSmells().size();
+				int firstNumSmells = o1.getAllSmells().size();
+				int secondNumSmells = o2.getAllSmells().size();
 				result = Integer.compare(secondNumSmells, firstNumSmells);
 			}
 			
