@@ -8,7 +8,11 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -36,16 +40,13 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.metrics.MetricName;
-import br.pucrio.opus.smells.patterns.model.PatternKind;
 import br.pucrio.opus.smells.resources.Method;
 import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.ui.util.Case;
-import br.pucrio.opus.smells.ui.util.DegradationInfoProvider;
 import br.pucrio.opus.smells.ui.util.MetricInformationProvider;
 import br.pucrio.opus.smells.ui.util.MetricValueTuple;
 import br.pucrio.opus.smells.ui.util.MultipleSmellsPatternCase;
 import br.pucrio.opus.smells.ui.util.RefactoringsSuggestionProvider;
-import br.pucrio.opus.smells.ui.util.SingleSmellsPatternCase;
 import br.pucrio.opus.smells.ui.util.SmellInformationProvider;
 
 public class ShowPatternCase extends JFrame {
@@ -62,6 +63,8 @@ public class ShowPatternCase extends JFrame {
 	private RSyntaxTextArea sourceTextArea;
 	private JTextArea degradationInfoTextArea;
 	private JTabbedPane informationTabbedPane;
+	private Map<Method, br.pucrio.opus.smells.resources.Type> typesOfMethods = new  HashMap<>();
+	private Map<br.pucrio.opus.smells.resources.Type, String> sourcesOfTypes = new HashMap<>();
 
 	/**
 	 * Launch the application.
@@ -79,12 +82,12 @@ public class ShowPatternCase extends JFrame {
 		});
 	}
 
-	public ShowPatternCase(Case caseToShow) throws IOException {
+	public ShowPatternCase(Case caseToShow) {
 		this();
 		this.setTitle("Case #" + caseToShow.getCaseNumber());
+		retrieveAllSources(caseToShow);
 		cleanAllDynamicInformation();
-		fillClassesTree(caseToShow.getType());
-		fillSourceCode(caseToShow.getType().getAbsoluteFilePath());
+		fillClassesTree(caseToShow);
 		fillDegradationInformation(caseToShow);
 	}
 
@@ -108,29 +111,78 @@ public class ShowPatternCase extends JFrame {
 		h.removeAllHighlights();
 	}
 
-	private void fillSourceCode(String absoluteFilePath) throws IOException {
-		List<String> allLines = Files.readAllLines(Paths.get(absoluteFilePath));
+	private void fillSourceCode(br.pucrio.opus.smells.resources.Type type) {
+		String source = sourcesOfTypes.get(type);
+		if (source != null) {
+			sourceTextArea.setText(source);
+		} else {
+			sourceTextArea.setText("");
+		}
+	}
+	
+	private void retrieveAllSources(Case caseToShow) {
+		String source = retrieveSource(caseToShow.getType());
+		sourcesOfTypes.put(caseToShow.getType(), source);
+		
+		if (caseToShow instanceof MultipleSmellsPatternCase) {
+			HashSet<br.pucrio.opus.smells.resources.Type> relatedTypes = ((MultipleSmellsPatternCase)caseToShow).getPattern().getRelatedTypes();
+			for (br.pucrio.opus.smells.resources.Type type : relatedTypes) {
+				source = retrieveSource(type);
+				sourcesOfTypes.put(type, source);
+			}
+		}
+	}
+
+	private String retrieveSource(br.pucrio.opus.smells.resources.Type type) {
+		List<String> allLines = new ArrayList<>();
+		try {
+			allLines = Files.readAllLines(Paths.get(type.getAbsoluteFilePath()));
+		} catch (IOException e) {
+			System.out.println("Failed to load the source code.");
+			System.out.println(e.getStackTrace());
+		}
 		StringBuilder builder = new StringBuilder();
 		for (String line : allLines) {
 			builder.append(line + System.lineSeparator());
 		}
-		sourceTextArea.setText(builder.toString());
+		
+		return builder.toString();
 	}
 
-	private void fillClassesTree(br.pucrio.opus.smells.resources.Type type) {
+	private void fillClassesTree(Case caseToShow) {
+		br.pucrio.opus.smells.resources.Type rootType = caseToShow.getType();
 		DefaultMutableTreeNode topClassesNode = new DefaultMutableTreeNode("Degradaded Elements");
 		DefaultTreeModel classesTreeModel = new DefaultTreeModel(topClassesNode);
 		classesTree.setModel(classesTreeModel);
-		DefaultMutableTreeNode rootClassNode = new DefaultMutableTreeNode(type);
+		DefaultMutableTreeNode rootClassNode = new DefaultMutableTreeNode(rootType);
 		topClassesNode.add(rootClassNode);
-		for (Method method : type.getMethods()) {
+		for (Method method : rootType.getMethods()) {
 			if (method.getSmells().size() > 0) {
 				DefaultMutableTreeNode methodNode = new DefaultMutableTreeNode(method);
 				rootClassNode.add(methodNode);
+				typesOfMethods.put(method, rootType);
 			}
 		}
-
+		
+		if (caseToShow instanceof MultipleSmellsPatternCase) {
+			MultipleSmellsPatternCase multipleSmellsCase = (MultipleSmellsPatternCase)caseToShow;
+			for (br.pucrio.opus.smells.resources.Type t : multipleSmellsCase.getPattern().getRelatedTypes()) {
+				DefaultMutableTreeNode relatedNode = new DefaultMutableTreeNode(t);
+				topClassesNode.add(relatedNode);
+				
+				for (Method m : t.getMethods()) {
+					if (m.getSmells().size() > 0) {
+						DefaultMutableTreeNode mNode = new DefaultMutableTreeNode(m);
+						relatedNode.add(mNode);
+						typesOfMethods.put(m, t);
+					}
+				}
+			}
+		}
+		
 		classesTree.expandRow(0);
+		
+		fillSourceCode(caseToShow.getType());
 
 		classesTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
@@ -142,13 +194,24 @@ public class ShowPatternCase extends JFrame {
 				cleanAllDynamicInformation();
 				Object nodeInfo = node.getUserObject();
 				if (nodeInfo instanceof br.pucrio.opus.smells.resources.Type) {
+					fillSourceCode(((br.pucrio.opus.smells.resources.Type) nodeInfo));
+					focusOnTopOfSourceCode();
 					fillAllClassInformation((br.pucrio.opus.smells.resources.Type) nodeInfo);
 				} else if (nodeInfo instanceof Method) {
+					br.pucrio.opus.smells.resources.Type type = typesOfMethods.get(nodeInfo);
+					fillSourceCode(type);
 					fillAllMethodInformation((Method) nodeInfo);
 					selectMethodLines((Method) nodeInfo);
 				}
 			}
 		});
+	}
+
+	protected void focusOnTopOfSourceCode() {
+		sourceTextArea.requestFocusInWindow();
+		Highlighter h = sourceTextArea.getHighlighter();
+		h.removeAllHighlights();
+		sourceTextArea.setCaretPosition(0);
 	}
 
 	protected void selectMethodLines(Method method) {

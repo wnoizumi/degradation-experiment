@@ -19,7 +19,7 @@ public class CasesEvaluationController {
 
 	private static Object lock = new Object();
 
-	public void startEvaluations(ExperimentalData data) throws InterruptedException, IOException {
+	public void startEvaluations(ExperimentalData data) throws InterruptedException {
 		for (Case c : data.getSelectedCases()) {
 			System.out.println("Started Analyzing Case #" + c.getCaseNumber());
 			showPatternCase(c);
@@ -40,7 +40,7 @@ public class CasesEvaluationController {
 		}
 	}
 
-	private void showPatternCase(Case caseToShow) throws InterruptedException, IOException {
+	private void showPatternCase(Case caseToShow) throws InterruptedException {
 		ShowPatternCase frame = new ShowPatternCase(caseToShow);
 		frame.setVisible(true);
 
