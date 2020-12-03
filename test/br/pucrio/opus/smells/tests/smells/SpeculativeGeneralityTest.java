@@ -13,8 +13,8 @@ import br.pucrio.opus.smells.collector.SmellName;
 import br.pucrio.opus.smells.collector.SpeculativeGenerality;
 import br.pucrio.opus.smells.resources.JavaFilesFinder;
 import br.pucrio.opus.smells.resources.ParenthoodRegistry;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.SourceFilesLoader;
-import br.pucrio.opus.smells.resources.Type;
 import br.pucrio.opus.smells.tests.util.GenericCollector;
 import br.pucrio.opus.smells.tests.util.TypeLoader;
 
@@ -29,7 +29,7 @@ public class SpeculativeGeneralityTest {
 	
 	@Test
 	public void ccTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		SpeculativeGenerality smellDetector = new SpeculativeGenerality();
 		List<Smell> smells = smellDetector.detect(type);
@@ -38,7 +38,7 @@ public class SpeculativeGeneralityTest {
 	
 	@Test
 	public void superDummyTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/SuperDummy.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/SuperDummy.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		SpeculativeGenerality smellDetector = new SpeculativeGenerality();
 		List<Smell> smells = smellDetector.detect(type);
@@ -47,7 +47,7 @@ public class SpeculativeGeneralityTest {
 	
 	@Test
 	public void speculativeGeneralitySampleTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/SpeculativeGeneralitySample.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/SpeculativeGeneralitySample.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		SpeculativeGenerality smellDetector = new SpeculativeGenerality();
 		List<Smell> smells = smellDetector.detect(type);

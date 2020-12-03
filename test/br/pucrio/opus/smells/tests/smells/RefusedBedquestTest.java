@@ -9,7 +9,7 @@ import org.junit.Test;
 import br.pucrio.opus.smells.collector.RefusedBequest;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.collector.SmellName;
-import br.pucrio.opus.smells.resources.Type;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.tests.util.GenericCollector;
 import br.pucrio.opus.smells.tests.util.TypeLoader;
 
@@ -17,7 +17,7 @@ public class RefusedBedquestTest {
 	
 	@Test
 	public void ccTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		RefusedBequest smellDetector = new RefusedBequest();
 		List<Smell> smells = smellDetector.detect(type);
@@ -26,7 +26,7 @@ public class RefusedBedquestTest {
 	
 	@Test
 	public void fieldDeclarationTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/FieldAccessedByMethod.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/FieldAccessedByMethod.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		RefusedBequest smellDetector = new RefusedBequest();
 		List<Smell> smells = smellDetector.detect(type);
@@ -35,7 +35,7 @@ public class RefusedBedquestTest {
 	
 	@Test
 	public void methodLocalityTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/RefusedBedquestSample.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/RefusedBedquestSample.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		RefusedBequest smellDetector = new RefusedBequest();
 		List<Smell> smells = smellDetector.detect(type);

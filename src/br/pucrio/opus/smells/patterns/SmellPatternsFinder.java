@@ -114,7 +114,7 @@ public class SmellPatternsFinder {
 		}
 	}
 
-	private SmellyNode getNodeOfType(Type type, SmellyGraph graph) {
+	private SmellyNode getNodeOfType(Resource type, SmellyGraph graph) {
 		for (SmellyNode node : graph.getNodes()) {
 			if (node.getResource().equals(type)) {
 				return node;

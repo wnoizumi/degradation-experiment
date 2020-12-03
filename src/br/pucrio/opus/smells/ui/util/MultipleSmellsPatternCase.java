@@ -9,6 +9,7 @@ public class MultipleSmellsPatternCase extends Case {
 	public MultipleSmellsPatternCase(PatternModel pattern, int caseNumber) {
 		super(pattern.getRootType(), caseNumber);
 		this.pattern = pattern;
+		this.degradationInfo = DegradationInfoProvider.getInfoFor(this.pattern.getKind());
 	}
 
 	public PatternModel getPattern() {
@@ -25,10 +26,5 @@ public class MultipleSmellsPatternCase extends Case {
 	protected String getCaseType() {
 		//MSP = Multiple Smells Pattern case
 		return "Case Type: MSP" + System.lineSeparator();
-	}
-	
-	@Override
-	public String getDegradationInfo() {
-		return DegradationInfoProvider.getInfoFor(this.pattern.getKind());
 	}
 }

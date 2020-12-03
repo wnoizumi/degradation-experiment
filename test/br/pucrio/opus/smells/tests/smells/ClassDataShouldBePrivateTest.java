@@ -11,7 +11,7 @@ import br.pucrio.opus.smells.collector.ClassDataShouldBePrivate;
 import br.pucrio.opus.smells.collector.Smell;
 import br.pucrio.opus.smells.collector.SmellName;
 import br.pucrio.opus.smells.metrics.AggregateMetricValues;
-import br.pucrio.opus.smells.resources.Type;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.tests.util.GenericCollector;
 import br.pucrio.opus.smells.tests.util.TypeLoader;
 
@@ -25,7 +25,7 @@ public class ClassDataShouldBePrivateTest {
 
 	@Test
 	public void ccTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/CC.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		ClassDataShouldBePrivate smellDetector = new ClassDataShouldBePrivate();
 		List<Smell> smells = smellDetector.detect(type);
@@ -36,7 +36,7 @@ public class ClassDataShouldBePrivateTest {
 	
 	@Test
 	public void fieldDeclarationTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/FieldDeclaration.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/FieldDeclaration.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		ClassDataShouldBePrivate smellDetector = new ClassDataShouldBePrivate();
 		List<Smell> smells = smellDetector.detect(type);
@@ -47,7 +47,7 @@ public class ClassDataShouldBePrivateTest {
 	
 	@Test
 	public void methodLocalityTest() throws Exception {
-		Type type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/MethodLocality.java"));
+		Resource type = TypeLoader.loadOne(new File("test/br/pucrio/opus/smells/tests/dummy/MethodLocality.java"));
 		GenericCollector.collectTypeMetricValues(type);
 		ClassDataShouldBePrivate smellDetector = new ClassDataShouldBePrivate();
 		List<Smell> smells = smellDetector.detect(type);

@@ -29,11 +29,11 @@ public class Organic {
 		try {
 			System.out.println("OPUS Research Group");
 			System.out.println("Source Code Degradation Experiment");
-			System.out.println("Please provide the path to the source code folder (without test folder):");
+			System.out.println("Please provide the path to the project:");
 			String sourcePath = scanner.nextLine();
 			while (!new File(sourcePath).isDirectory()) {
 				System.out.println("Unable to read the provided path.");
-				System.out.println("Please provide the path to the source code folder (without test folder):");
+				System.out.println("Please provide the path to the project:");
 				sourcePath = scanner.nextLine();
 			}
 			dataCollectionController.collectData(sourcePath);

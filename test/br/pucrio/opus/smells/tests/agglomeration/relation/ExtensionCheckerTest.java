@@ -12,6 +12,7 @@ import br.pucrio.opus.smells.agglomeration.SmellyNode;
 import br.pucrio.opus.smells.agglomeration.relation.ClassExtensionChecker;
 import br.pucrio.opus.smells.agglomeration.relation.RelationChecker;
 import br.pucrio.opus.smells.resources.ParenthoodRegistry;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.Type;
 import br.pucrio.opus.smells.tests.util.TypeLoader;
 
@@ -25,8 +26,8 @@ public class ExtensionCheckerTest {
 		return new SmellyNode(findByName(name));
 	}
 	
-	private Type findByName(String name) {
-		for (Type type : types) {
+	private Resource findByName(String name) {
+		for (Resource type : types) {
 			File file = type.getSourceFile().getFile();
 			if (file.getName().equals(name)) {
 				return type;

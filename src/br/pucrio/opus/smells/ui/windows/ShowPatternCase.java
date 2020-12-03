@@ -111,7 +111,7 @@ public class ShowPatternCase extends JFrame {
 		h.removeAllHighlights();
 	}
 
-	private void fillSourceCode(br.pucrio.opus.smells.resources.Type type) {
+	private void fillSourceCode(Resource type) {
 		String source = sourcesOfTypes.get(type);
 		if (source != null) {
 			sourceTextArea.setText(source);
@@ -133,7 +133,7 @@ public class ShowPatternCase extends JFrame {
 		}
 	}
 
-	private String retrieveSource(br.pucrio.opus.smells.resources.Type type) {
+	private String retrieveSource(Resource type) {
 		List<String> allLines = new ArrayList<>();
 		try {
 			allLines = Files.readAllLines(Paths.get(type.getAbsoluteFilePath()));
@@ -194,11 +194,11 @@ public class ShowPatternCase extends JFrame {
 				cleanAllDynamicInformation();
 				Object nodeInfo = node.getUserObject();
 				if (nodeInfo instanceof br.pucrio.opus.smells.resources.Type) {
-					fillSourceCode(((br.pucrio.opus.smells.resources.Type) nodeInfo));
+					fillSourceCode(((Resource) nodeInfo));
 					focusOnTopOfSourceCode();
-					fillAllClassInformation((br.pucrio.opus.smells.resources.Type) nodeInfo);
+					fillAllClassInformation((Resource) nodeInfo);
 				} else if (nodeInfo instanceof Method) {
-					br.pucrio.opus.smells.resources.Type type = typesOfMethods.get(nodeInfo);
+					Resource type = typesOfMethods.get(nodeInfo);
 					fillSourceCode(type);
 					fillAllMethodInformation((Method) nodeInfo);
 					selectMethodLines((Method) nodeInfo);
@@ -253,7 +253,7 @@ public class ShowPatternCase extends JFrame {
 		fillMetricsTree(method);
 	}
 
-	protected void fillAllClassInformation(br.pucrio.opus.smells.resources.Type type) {
+	protected void fillAllClassInformation(Resource type) {
 		fillSmellsTree(type);
 		fillMetricsTree(type);
 	}

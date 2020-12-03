@@ -118,4 +118,8 @@ public abstract class Resource extends Observable {
 	public String getAbsoluteFilePath() {
 		return sourceFile.getFile().getAbsolutePath();
 	}
+
+	public boolean isInterface() {
+		return this.getKind().contains("interface");
+	}
 }

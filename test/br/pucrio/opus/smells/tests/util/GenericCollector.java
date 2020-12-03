@@ -3,11 +3,12 @@ package br.pucrio.opus.smells.tests.util;
 import br.pucrio.opus.smells.metrics.MethodMetricValueCollector;
 import br.pucrio.opus.smells.metrics.TypeMetricValueCollector;
 import br.pucrio.opus.smells.resources.Method;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.Type;
 
 public class GenericCollector {
 
-	public static void collectTypeMetricValues(Type type) {
+	public static void collectTypeMetricValues(Resource type) {
 		TypeMetricValueCollector collector = new TypeMetricValueCollector();
 		collector.collect(type);
 	}

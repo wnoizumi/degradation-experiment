@@ -8,7 +8,7 @@ public class Case {
 
 	private Type type;
 	private int caseNumber;
-	private String degradationInfo;
+	protected String degradationInfo;
 
 	public Case(Type type, int caseNumber) {
 		this.type = type;

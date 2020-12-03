@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.pucrio.opus.smells.resources.JavaFilesFinder;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.SourceFile;
 import br.pucrio.opus.smells.resources.SourceFilesLoader;
 import br.pucrio.opus.smells.resources.Type;
@@ -17,8 +18,8 @@ public class TypeLoader {
 		return type;
 	}
 	
-	public static Type loadOneDummyClass(String dummyClass) throws IOException {
-		Type type = loadAllDummyClass(dummyClass).get(0);
+	public static Resource loadOneDummyClass(String dummyClass) throws IOException {
+		Resource type = loadAllDummyClass(dummyClass).get(0);
 		return type;
 	}
 	

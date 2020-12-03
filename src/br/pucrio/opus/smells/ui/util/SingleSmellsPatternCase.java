@@ -9,6 +9,7 @@ public class SingleSmellsPatternCase extends Case {
 	public SingleSmellsPatternCase(PatternModel pattern, int caseNumber) {
 		super(pattern.getRootType(), caseNumber);
 		this.pattern = pattern;
+		this.degradationInfo = DegradationInfoProvider.getInfoFor(this.pattern.getKind());
 	}
 
 	public PatternModel getPattern() {
@@ -25,10 +26,5 @@ public class SingleSmellsPatternCase extends Case {
 	protected String getCaseType() {
 		//SSP = Single Smell Pattern case
 		return "Case Type: SSP" + System.lineSeparator();
-	}
-	
-	@Override
-	public String getDegradationInfo() {
-		return DegradationInfoProvider.getInfoFor(this.pattern.getKind());
 	}
 }

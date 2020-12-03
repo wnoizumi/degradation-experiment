@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import br.pucrio.opus.smells.ast.visitors.TypeDeclarationCollector;
 import br.pucrio.opus.smells.metrics.calculators.LCOM2Calculator;
+import br.pucrio.opus.smells.resources.Resource;
 import br.pucrio.opus.smells.resources.Type;
 import br.pucrio.opus.smells.tests.util.TypeLoader;
 
@@ -26,8 +27,8 @@ public class LCOM2CalculatorTest {
 		
 	}
 	
-	private Type findTypeByName(String name) {
-		for (Type type : types) {
+	private Resource findTypeByName(String name) {
+		for (Resource type : types) {
 			TypeDeclaration td = (TypeDeclaration)type.getNode();
 			String typeName = td.getName().toString();
 			if (typeName.equals(name)) {
@@ -38,7 +39,7 @@ public class LCOM2CalculatorTest {
 	}
 	
 	private Double getLCOM2(String dummyClassName) throws IOException {
-		Type typeClass = findTypeByName(dummyClassName);
+		Resource typeClass = findTypeByName(dummyClassName);
 		
 		TypeDeclarationCollector visitor = new TypeDeclarationCollector();
 		typeClass.getNode().accept(visitor);

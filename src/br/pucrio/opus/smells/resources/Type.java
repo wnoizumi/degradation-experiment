@@ -147,10 +147,6 @@ public class Type extends Resource {
 		return getBinding().getName();
 	}
 
-	public boolean isInterface() {
-		return this.getKind().contains("interface");
-	}
-	
 	public Set<Smell> getAllSmells() {
 		Set<Smell> allSmells = new HashSet<Smell>(this.getSmells());
 		for (Method m : this.methods) {
