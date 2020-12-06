@@ -8,6 +8,9 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 
@@ -20,7 +23,9 @@ public class CasesEvaluationController {
 	private static Object lock = new Object();
 
 	public void startEvaluations(ExperimentalData data) throws InterruptedException {
-		for (Case c : data.getSelectedCases()) {
+		ArrayList<Case> selectedCases = data.getSelectedCases();
+		Collections.shuffle(selectedCases, new Random());
+		for (Case c : selectedCases) {
 			System.out.println("Started Analyzing Case #" + c.getCaseNumber());
 			showPatternCase(c);
 			saveCaseData(c);

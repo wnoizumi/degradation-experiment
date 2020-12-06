@@ -372,6 +372,15 @@ public class ShowPatternCase extends JFrame {
 
 		JTabbedPane additionalInfoTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
+		degradationInfoTextArea = new JTextArea();
+		degradationInfoTextArea.setLineWrap(true);
+		degradationInfoTextArea.setWrapStyleWord(true);
+		degradationInfoTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+		degradationInfoTextArea.setEditable(false);
+		JScrollPane degradationInfoScrollPane = new JScrollPane(degradationInfoTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		additionalInfoTabbedPane.addTab("Degradation Info", null, degradationInfoScrollPane, null);
+		
 		metricsTree = new JTree();
 		JScrollPane metricsScrollPane = new JScrollPane(metricsTree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -454,14 +463,6 @@ public class ShowPatternCase extends JFrame {
 		sourceTextArea.setEditable(false);
 		sourceScrollPane.setViewportView(sourceTextArea);
 
-		degradationInfoTextArea = new JTextArea();
-		degradationInfoTextArea.setLineWrap(true);
-		degradationInfoTextArea.setWrapStyleWord(true);
-		degradationInfoTextArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-		degradationInfoTextArea.setEditable(false);
-		JScrollPane degradationInfoScrollPane = new JScrollPane(degradationInfoTextArea,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		additionalInfoTabbedPane.addTab("Degradation Info", null, degradationInfoScrollPane, null);
 		contentPane.setLayout(gl_contentPane);
 	}
 
