@@ -6,8 +6,8 @@ public class SingleSmellsPatternCase extends Case {
 
 	private PatternModel pattern;
 
-	public SingleSmellsPatternCase(PatternModel pattern, int caseNumber) {
-		super(pattern.getRootType(), caseNumber);
+	public SingleSmellsPatternCase(PatternModel pattern, int caseNumber, int numberOfDetectedChanges) {
+		super(pattern.getRootType(), caseNumber, numberOfDetectedChanges);
 		this.pattern = pattern;
 		this.degradationInfo = DegradationInfoProvider.getInfoFor(this.pattern.getKind());
 	}

@@ -24,8 +24,14 @@ public class ExperimentalData {
 		int caseNumber = 1;
 		for (PatternModel pattern : multipleSmellsPatterns) {
 			if (!selectedTypes.contains(pattern.getRootType())) {
+				int numberOfDetectedChanges = 0;
+				TypeChangesHolder changesHolder = changeData.get(pattern.getRootType());
+				if (changesHolder != null) {
+					numberOfDetectedChanges = changesHolder.getNumberOfChanges();
+				}
+				
 				selectedTypes.add(pattern.getRootType());
-				getSelectedCases().add(new MultipleSmellsPatternCase(pattern, caseNumber));
+				getSelectedCases().add(new MultipleSmellsPatternCase(pattern, caseNumber, numberOfDetectedChanges));
 				caseNumber++;
 				if (caseNumber > 2) {
 					break;
@@ -35,8 +41,14 @@ public class ExperimentalData {
 
 		for (PatternModel pattern : singleSmellPatterns) {
 			if (!selectedTypes.contains(pattern.getRootType())) {
+				int numberOfDetectedChanges = 0;
+				TypeChangesHolder changesHolder = changeData.get(pattern.getRootType());
+				if (changesHolder != null) {
+					numberOfDetectedChanges = changesHolder.getNumberOfChanges();
+				}
+				
 				selectedTypes.add(pattern.getRootType());
-				getSelectedCases().add(new SingleSmellsPatternCase(pattern, caseNumber));
+				getSelectedCases().add(new SingleSmellsPatternCase(pattern, caseNumber, numberOfDetectedChanges));
 				caseNumber++;
 			}
 
@@ -55,8 +67,13 @@ public class ExperimentalData {
 
 		for (Type type : allTypes) {
 			if (!typesInPatterns.contains(type)) {
+				int numberOfDetectedChanges = 0;
+				TypeChangesHolder changesHolder = changeData.get(type);
+				if (changesHolder != null) {
+					numberOfDetectedChanges = changesHolder.getNumberOfChanges();
+				}
 				selectedTypes.add(type);
-				getSelectedCases().add(new Case(type, caseNumber));
+				getSelectedCases().add(new Case(type, caseNumber, numberOfDetectedChanges));
 				caseNumber++;
 			}
 

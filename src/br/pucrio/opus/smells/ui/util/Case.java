@@ -9,10 +9,12 @@ public class Case {
 	private Type type;
 	private int caseNumber;
 	protected String degradationInfo;
+	private int numberOfDetectedChanges;
 
-	public Case(Type type, int caseNumber) {
+	public Case(Type type, int caseNumber, int numberOfDetectedChanges) {
 		this.type = type;
 		this.caseNumber = caseNumber;
+		this.numberOfDetectedChanges = numberOfDetectedChanges;
 		this.degradationInfo = DegradationInfoProvider.getDefaultInfo();
 	}
 
@@ -22,6 +24,7 @@ public class Case {
 	
 	public String getCaseDescription() {
 		String caseNumberStr = "Case #" + this.getCaseNumber() + System.lineSeparator();
+		String detectedChanges = "# of Detected Changes:" + this.numberOfDetectedChanges + System.lineSeparator();
 		String caseType = getCaseType();
 		String className = "Root Class: " + type.getFullyQualifiedName() + System.lineSeparator();
 		String classSmells = "Class Smells:" + type.getSmells()
@@ -40,7 +43,7 @@ public class Case {
 			providedDegradationInfo = "Degradation Info: " + this.degradationInfo;
 		providedDegradationInfo += System.lineSeparator();
 		
-		return caseNumberStr + caseType + className + classSmells + methodSmells + providedDegradationInfo;
+		return caseNumberStr + detectedChanges + caseType + className + classSmells + methodSmells + providedDegradationInfo;
 	}
 
 	protected String getCaseType() {
